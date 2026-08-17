@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MonitoringController;
 use Illuminate\Support\Facades\Route;
@@ -19,4 +20,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/routing', [AdminController::class, 'storeRouting'])->name('routing.store');
     Route::get('/messages', [AdminController::class, 'messages'])->name('messages');
     Route::get('/monitoring', [MonitoringController::class, 'index'])->name('monitoring');
+    Route::get('/currencies', [CurrencyController::class, 'index'])->name('currencies');
+    Route::post('/currencies', [CurrencyController::class, 'storeCurrency'])->name('currencies.store');
+    Route::post('/exchange-rates', [CurrencyController::class, 'storeRate'])->name('exchange-rates.store');
 });
