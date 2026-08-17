@@ -24,7 +24,7 @@ services:
     volumes:
       - ./.env:/var/www/html/.env
       - jasmin_logs:/var/log/jasmin:ro
-      command: php artisan queue:work redis --queue=sms-submit,default --sleep=1 --tries=8 --timeout=90 --max-jobs=1000 --max-time=3600
+    command: php artisan queue:work redis --queue=sms-submit,default --sleep=1 --tries=8 --timeout=90 --max-jobs=1000 --max-time=3600
     depends_on:
       postgres: {condition: service_healthy}
       redis: {condition: service_healthy}
