@@ -91,9 +91,23 @@ async def set_enabled(args, enabled):
             pass
 
 
+async def show_user(args):
+    reader, writer = await login(args)
+    try:
+        output = await send(reader, writer, 'user -s ' + args.uid, prompts=('jcli : ',))
+        fail_if_error(output)
+        print(output)
+    finally:
+        writer.close()
+        try:
+            await writer.wait_closed()
+        except Exception:
+            pass
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('action', choices=['provision', 'disable', 'enable'])
+    parser.add_argument('action', choices=['provision', 'disable', 'enable', 'show'])
     parser.add_argument('--uid', required=True)
     parser.add_argument('--gid', default='laravel_customers')
     parser.add_argument('--username')
@@ -112,5 +126,7 @@ if __name__ == '__main__':
         asyncio.run(provision(args))
     elif args.action == 'disable':
         asyncio.run(set_enabled(args, False))
-    else:
+    elif args.action == 'enable':
         asyncio.run(set_enabled(args, True))
+    else:
+        asyncio.run(show_user(args))
