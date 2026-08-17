@@ -27,7 +27,7 @@ class MonitoringController extends Controller
         $accounts = DB::table('customer_smpp_accounts as a')
             ->join('users as u', 'u.id', '=', 'a.user_id')
             ->orderBy('u.name')
-            ->get(['a.user_id', 'a.system_id', 'a.max_bind', 'a.tps', 'a.enabled', 'u.name', 'u.email']);
+            ->get(['a.user_id', 'a.system_id', 'a.max_bind', 'a.tps', 'a.current_binds', 'a.last_bind_at', 'a.last_unbind_at', 'a.enabled', 'u.name', 'u.email']);
 
         return response()->json([
             'generated_at' => now()->toIso8601String(),

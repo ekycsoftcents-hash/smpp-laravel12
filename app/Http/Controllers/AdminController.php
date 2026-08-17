@@ -13,7 +13,7 @@ class AdminController extends Controller
 {
     public function users()
     {
-        $users = DB::table('users')->leftJoin('customer_smpp_accounts as smpp', 'smpp.user_id', '=', 'users.id')->select('users.*', 'smpp.system_id', 'smpp.max_bind', 'smpp.enabled as smpp_enabled')->orderByDesc('users.id')->paginate(25);
+        $users = DB::table('users')->leftJoin('customer_smpp_accounts as smpp', 'smpp.user_id', '=', 'users.id')->select('users.*', 'smpp.system_id', 'smpp.max_bind', 'smpp.tps', 'smpp.current_binds', 'smpp.last_bind_at', 'smpp.last_unbind_at', 'smpp.enabled as smpp_enabled')->orderByDesc('users.id')->paginate(25);
         return view('admin.users', compact('users'));
     }
 
