@@ -73,6 +73,7 @@ services:
     restart: unless-stopped
 
   jasmin:
+    env_file: .env
     build:
       context: ./jasmin
       dockerfile: Dockerfile.compose

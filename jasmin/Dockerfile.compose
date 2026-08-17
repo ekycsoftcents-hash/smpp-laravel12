@@ -22,6 +22,7 @@ COPY misc/config/*.cfg ${CONFIG_PATH}/
 COPY misc/config/resource ${RESOURCE_PATH}
 COPY docker/docker-entrypoint.sh /jasmin-upstream-entrypoint.sh
 COPY docker/compose-entrypoint.sh /compose-entrypoint.sh
+COPY docker/provision-default.py /provision-default.py
 RUN chmod +x /jasmin-upstream-entrypoint.sh /compose-entrypoint.sh \
     && sed -i '/\[jcli\]/a bind=0.0.0.0' ${CONFIG_PATH}/jasmin.cfg \
     && sed -i '/\[http-api\]/a bind=0.0.0.0' ${CONFIG_PATH}/jasmin.cfg \
