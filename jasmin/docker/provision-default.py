@@ -1,6 +1,7 @@
+import asyncio
 import os
-import socket
-import time
+
+import telnetlib3
 
 HOST = os.getenv("JASMIN_CLI_HOST", "127.0.0.1")
 PORT = int(os.getenv("JASMIN_CLI_PORT", "8990"))
@@ -11,61 +12,61 @@ API_USERNAME = os.getenv("JASMIN_USERNAME", "laravel_api")
 API_PASSWORD = os.getenv("JASMIN_PASSWORD", "laravel_secret")
 
 
-def read_until(sock, marker, timeout=15):
-    sock.settimeout(timeout)
-    data = b""
-    while marker not in data:
-        chunk = sock.recv(4096)
-        if not chunk:
-            raise RuntimeError("Jasmin CLI closed the connection")
-        data += chunk
-    return data.decode("utf-8", "replace")
-
-
-def read_until_any(sock, markers, timeout=15):
-    sock.settimeout(timeout)
-    data = b""
+async def read_until(reader, markers, timeout=20):
+    if isinstance(markers, (bytes, str)):
+        markers = [markers]
+    markers = [m.decode() if isinstance(m, bytes) else m for m in markers]
+    data = ""
     while not any(marker in data for marker in markers):
-        chunk = sock.recv(4096)
+        chunk = await asyncio.wait_for(reader.read(1024), timeout=timeout)
         if not chunk:
             raise RuntimeError("Jasmin CLI closed the connection")
         data += chunk
-    return data.decode("utf-8", "replace")
+    return data
 
 
-def command(sock, value):
-    sock.sendall((value + "\n").encode())
-    return read_until(sock, b"jcli : ")
+async def command(reader, writer, value):
+    writer.write(value + "\n")
+    await writer.drain()
+    return await read_until(reader, "jcli : ")
 
 
-with socket.create_connection((HOST, PORT), timeout=15) as sock:
-    first_prompt = read_until_any(sock, [b"Username: ", b"jcli : "], timeout=15)
-    if "Username: " in first_prompt:
-        sock.sendall((CLI_USER + "\n").encode())
-        read_until(sock, b"Password: ")
-        sock.sendall((CLI_PASSWORD + "\n").encode())
-        read_until(sock, b"jcli : ")
+async def provision():
+    reader, writer = await telnetlib3.open_connection(HOST, PORT, encoding="utf-8")
+    try:
+        first_prompt = await read_until(reader, ["Username: ", "jcli : "])
+        if "Username: " in first_prompt:
+            writer.write(CLI_USER + "\n")
+            await writer.drain()
+            await read_until(reader, "Password: ")
+            writer.write(CLI_PASSWORD + "\n")
+            await writer.drain()
+            await read_until(reader, "jcli : ")
 
-    groups = command(sock, "group -l")
-    if API_UID not in groups:
-        command(sock, "group -a")
-        command(sock, "gid laravel")
-        command(sock, "ok")
+        groups = await command(reader, writer, "group -l")
+        if API_UID not in groups:
+            await command(reader, writer, "group -a")
+            await command(reader, writer, "gid laravel")
+            await command(reader, writer, "ok")
 
-    users = command(sock, "user -l")
-    if API_UID not in users:
-        command(sock, "user -a")
-        command(sock, "gid laravel")
-        command(sock, f"uid {API_UID}")
-        command(sock, f"username {API_USERNAME}")
-        command(sock, f"password {API_PASSWORD}")
-        command(sock, "mt_messaging_cred authorization http_send True")
-        command(sock, "mt_messaging_cred authorization http_balance True")
-        command(sock, "mt_messaging_cred authorization http_rate True")
-        command(sock, "mt_messaging_cred authorization dlr_level True")
-        command(sock, "mt_messaging_cred authorization http_dlr_method True")
-        command(sock, "mt_messaging_cred quota balance 100000")
-        command(sock, "mt_messaging_cred quota submit_sm_count 100000")
-        command(sock, "ok")
+        users = await command(reader, writer, "user -l")
+        if API_UID not in users:
+            await command(reader, writer, "user -a")
+            await command(reader, writer, "gid laravel")
+            await command(reader, writer, f"uid {API_UID}")
+            await command(reader, writer, f"username {API_USERNAME}")
+            await command(reader, writer, f"password {API_PASSWORD}")
+            await command(reader, writer, "mt_messaging_cred authorization http_send True")
+            await command(reader, writer, "mt_messaging_cred authorization http_balance True")
+            await command(reader, writer, "mt_messaging_cred authorization http_rate True")
+            await command(reader, writer, "mt_messaging_cred authorization dlr_level True")
+            await command(reader, writer, "mt_messaging_cred authorization http_dlr_method True")
+            await command(reader, writer, "mt_messaging_cred quota balance 100000")
+            await command(reader, writer, "mt_messaging_cred quota submit_sm_count 100000")
+            await command(reader, writer, "ok")
+    finally:
+        writer.close()
 
+
+asyncio.run(provision())
 print(f"Jasmin default HTTP user ready: {API_USERNAME}")
