@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends libffi-dev libs
 ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2
 WORKDIR /usr/jasmin
 
-COPY requirements.txt requirements-test.txt setup.py README.rst ./
+COPY requirements.txt requirements-test.txt setup.py pyproject.toml README.rst ./
 COPY jasmin ./jasmin
 RUN pip install --no-cache-dir -r requirements.txt && pip install --no-cache-dir .
 
