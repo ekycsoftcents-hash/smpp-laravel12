@@ -53,6 +53,15 @@ class MonitoringController extends Controller
             $socket = @fsockopen($provider->host, (int) $provider->port, $errno, $error, 2);
             $online = is_resource($socket);
             if ($online) fclose($socket);
+            $latency = round((microtime(true) - $started) * 1000, 2);
+            $healthError = $online ? null : ($error ?: 'Connection refused or timed out');
+            DB::table('providers')->where('id', $provider->id)->update([
+                'status' => $online ? 'CONNECTED' : 'DISCONNECTED',
+                'last_health_at' => now(),
+                'health_error' => $healthError,
+                'health_latency_ms' => $latency,
+                'updated_at' => now(),
+            ]);
             $logs = DB::table('sms_messages')->where('provider_id', $provider->id)->latest('created_at')->limit(15)->get(['id', 'message_id', 'destination', 'final_status', 'provider_status', 'created_at', 'updated_at']);
             $result[] = [
                 'id' => $provider->id,
@@ -60,8 +69,8 @@ class MonitoringController extends Controller
                 'host' => $provider->host,
                 'port' => $provider->port,
                 'status' => $online ? 'CONNECTED' : 'DISCONNECTED',
-                'latency_ms' => round((microtime(true) - $started) * 1000, 2),
-                'error' => $online ? null : ($error ?: 'Connection refused or timed out'),
+                'latency_ms' => $latency,
+                'error' => $healthError,
                 'logs' => $logs,
             ];
         }
