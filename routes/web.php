@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MonitoringController;
+use App\Http\Controllers\InvoiceController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
@@ -43,4 +44,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/exchange-rates', [CurrencyController::class, 'storeRate'])->name('exchange-rates.store');
     Route::put('/exchange-rates/{rate}', [CurrencyController::class, 'updateRate'])->name('exchange-rates.update');
     Route::delete('/exchange-rates/{rate}', [CurrencyController::class, 'destroyRate'])->name('exchange-rates.destroy');
+    Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices');
+    Route::post('/invoices', [InvoiceController::class, 'store'])->name('invoices.store');
+    Route::post('/invoices/{invoice}/payments', [InvoiceController::class, 'payment'])->name('invoices.payment');
 });

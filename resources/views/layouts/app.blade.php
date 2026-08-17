@@ -49,7 +49,7 @@
             <div class="section">Finance and Accounts</div>
             <a class="{{ request()->routeIs('admin.currencies') ? 'active' : '' }}" href="{{ route('admin.currencies') }}">Currency & Exchange Rates</a>
             <a class="{{ request()->routeIs('admin.reports') ? 'active' : '' }}" href="{{ route('admin.reports') }}">Profit Summary</a>
-            <a class="muted" href="#" title="Invoice workflow is planned">Invoices & Recharge</a>
+            <a class="{{ request()->routeIs('admin.invoices*') ? 'active' : '' }}" href="{{ route('admin.invoices') }}">Invoices & Recharge</a>
             <a class="muted" href="#" title="Ledger view is planned">Billing Ledger</a>
 
             <div class="section">Logs and Security</div>

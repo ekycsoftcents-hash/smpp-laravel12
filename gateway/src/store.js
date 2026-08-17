@@ -5,7 +5,7 @@ import config from './config.js';
 const { Pool } = pg;
 export const pool = new Pool({ connectionString: config.DATABASE_URL, max: 20, idleTimeoutMillis: 30000 });
 export const redis = new Redis(config.REDIS_URL, { maxRetriesPerRequest: null, lazyConnect: false });
-export const redisSubscriber = new Redis(config.REDIS_URL, { maxRetriesPerRequest: null });
+export function createRedisSubscriber() { return new Redis(config.REDIS_URL, { maxRetriesPerRequest: null }); }
 
 export async function getClientAccount(systemId) {
   const { rows } = await pool.query(`

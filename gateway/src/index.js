@@ -4,7 +4,7 @@ import config from './config.js';
 import { startClientServer } from './client-server.js';
 import { ProviderManager } from './provider-manager.js';
 import { submitWithFailover } from './router.js';
-import { publishEvent, redisSubscriber, updateMessage } from './store.js';
+import { createRedisSubscriber, publishEvent, updateMessage } from './store.js';
 
 const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
 const app = express();
@@ -16,10 +16,11 @@ app.get('/ready', (_req, res) => res.json({ ready: [...providers.connections.val
 app.get('/live/events', async (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream'); res.setHeader('Cache-Control', 'no-cache'); res.setHeader('Connection', 'keep-alive'); res.flushHeaders?.();
   const channel = `gateway-${Date.now()}-${Math.random()}`;
+  const subscriber = createRedisSubscriber();
   const onMessage = (_channel, message) => res.write(`data: ${message}\n\n`);
-  await redisSubscriber.subscribe('reve:gateway:events');
-  redisSubscriber.on('message', onMessage);
-  req.on('close', async () => { redisSubscriber.off('message', onMessage); await redisSubscriber.unsubscribe('reve:gateway:events'); res.end(); });
+  await subscriber.subscribe('reve:gateway:events');
+  subscriber.on('message', onMessage);
+  req.on('close', async () => { subscriber.off('message', onMessage); await subscriber.unsubscribe('reve:gateway:events'); await subscriber.quit(); res.end(); });
   res.write(`event: ready\ndata: ${JSON.stringify({ channel })}\n\n`);
 });
 app.post('/api/v1/messages', async (req, res) => {
