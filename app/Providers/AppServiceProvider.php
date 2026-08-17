@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Event;
+use App\Events\CustomerBalanceBelowThreshold;
+use App\Listeners\SendLowBalanceAlert;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +22,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Event::listen(CustomerBalanceBelowThreshold::class, SendLowBalanceAlert::class);
     }
 }
