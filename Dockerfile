@@ -1,6 +1,8 @@
 FROM php:8.3-apache
 
 RUN apt-get update && apt-get install -y --no-install-recommends libpq-dev libzip-dev unzip git \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
     && docker-php-ext-install pdo_pgsql bcmath pcntl zip \
     && a2enmod rewrite \
     && rm -rf /var/lib/apt/lists/*
