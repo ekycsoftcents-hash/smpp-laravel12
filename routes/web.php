@@ -21,6 +21,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::delete('/providers/{provider}', [AdminController::class, 'destroyProvider'])->name('providers.destroy');
     Route::get('/rates', [AdminController::class, 'rates'])->name('rates');
     Route::post('/rates', [AdminController::class, 'storeRate'])->name('rates.store');
+    Route::post('/rates/import', [AdminController::class, 'importRates'])->name('rates.import');
+    Route::get('/rates/template', [AdminController::class, 'downloadRateTemplate'])->name('rates.template');
     Route::put('/rates/{rate}', [AdminController::class, 'updateRate'])->name('rates.update');
     Route::delete('/rates/{rate}', [AdminController::class, 'destroyRate'])->name('rates.destroy');
     Route::get('/routing', [AdminController::class, 'routing'])->name('routing');

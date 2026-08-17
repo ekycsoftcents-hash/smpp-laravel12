@@ -95,6 +95,113 @@ class AdminController extends Controller
         return back()->with('success', 'Rate created successfully.');
     }
 
+    public function importRates(Request $request)
+    {
+        $request->validate(['tariff_file' => ['required', 'file', 'max:10240', 'mimes:csv,txt,xlsx']]);
+        $file = $request->file('tariff_file');
+        $rows = strtolower($file->getClientOriginalExtension()) === 'xlsx'
+            ? $this->readXlsxRows($file->getRealPath())
+            : $this->readCsvRows($file->getRealPath());
+        if (!$rows) return back()->withErrors(['tariff_file' => 'The uploaded file has no data rows.']);
+
+        $required = ['type', 'prefix', 'buy_rate', 'sell_rate', 'currency', 'buy_currency', 'sell_currency'];
+        $imported = 0; $failed = [];
+        DB::transaction(function () use ($rows, $required, &$imported, &$failed): void {
+            foreach ($rows as $line => $row) {
+                $row = array_change_key_case($row, CASE_LOWER);
+                $row = array_combine(array_map(fn ($key) => preg_replace('/[^a-z0-9_]+/', '_', trim((string) $key)), array_keys($row)), array_values($row));
+                $missing = array_values(array_filter($required, fn ($key) => !array_key_exists($key, $row)));
+                if ($missing) { $failed[$line] = 'Missing columns: ' . implode(', ', $missing); continue; }
+                $validator = validator($row, [
+                    'provider_id' => ['nullable', 'integer', 'exists:providers,id'],
+                    'customer_id' => ['nullable', 'integer', 'exists:users,id'],
+                    'type' => ['required', 'string', 'max:50'],
+                    'country' => ['nullable', 'string', 'max:80'],
+                    'prefix' => ['nullable', 'string', 'max:40'],
+                    'buy_rate' => ['required', 'numeric', 'min:0'],
+                    'sell_rate' => ['required', 'numeric', 'min:0'],
+                    'currency' => ['required', 'string', 'size:3'],
+                    'buy_currency' => ['required', 'string', 'size:3'],
+                    'sell_currency' => ['required', 'string', 'size:3'],
+                ]);
+                if ($validator->fails()) { $failed[$line] = implode(' ', $validator->errors()->all()); continue; }
+                $data = $validator->validated();
+                $data['provider_id'] = $this->nullableInt($data['provider_id'] ?? null);
+                $data['customer_id'] = $this->nullableInt($data['customer_id'] ?? null);
+                $data['type'] = strtoupper($data['type']);
+                $data['country'] = $data['country'] ?? null;
+                $data['prefix'] = $data['prefix'] ?? null;
+                $data['currency'] = strtoupper($data['currency']);
+                $data['buy_currency'] = strtoupper($data['buy_currency']);
+                $data['sell_currency'] = strtoupper($data['sell_currency']);
+                $data['effective_from'] = now();
+                $data['updated_at'] = now();
+                $match = DB::table('rates')->where('type', $data['type']);
+                foreach (['provider_id', 'customer_id', 'country', 'prefix'] as $key) {
+                    $data[$key] === null ? $match->whereNull($key) : $match->where($key, $data[$key]);
+                }
+                $existing = $match->first(['id']);
+                if ($existing) DB::table('rates')->where('id', $existing->id)->update($data);
+                else DB::table('rates')->insert($data + ['created_at' => now()]);
+                $imported++;
+            }
+        });
+        return back()->with('rate_import_report', ['imported' => $imported, 'failed' => $failed, 'total' => count($rows)]);
+    }
+
+    public function downloadRateTemplate()
+    {
+        $headers = ['provider_id', 'customer_id', 'type', 'country', 'prefix', 'buy_rate', 'sell_rate', 'currency', 'buy_currency', 'sell_currency'];
+        $example = ['', '', 'SMS', 'BD', '88017', '0.450000', '0.800000', 'BDT', 'BDT', 'BDT'];
+        return response()->streamDownload(function () use ($headers, $example): void {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, $headers); fputcsv($handle, $example); fclose($handle);
+        }, 'tariff-template.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    private function nullableInt(mixed $value): ?int
+    {
+        return $value === null || $value === '' ? null : (int) $value;
+    }
+
+    private function readCsvRows(string $path): array
+    {
+        $handle = fopen($path, 'rb'); if (!$handle) return [];
+        $headers = array_map(fn ($header) => preg_replace('/^\\xEF\\xBB\\xBF/', '', trim((string) $header)), fgetcsv($handle) ?: []); $rows = []; $line = 1;
+        while (($values = fgetcsv($handle)) !== false) {
+            $line++; if (count(array_filter($values, fn ($value) => trim((string) $value) !== '')) === 0) continue;
+            $values = array_slice(array_pad($values, count($headers), null), 0, count($headers));
+            $rows[$line] = array_combine($headers, $values) ?: [];
+        }
+        fclose($handle); return $rows;
+    }
+
+    private function readXlsxRows(string $path): array
+    {
+        $zip = new \ZipArchive(); if ($zip->open($path) !== true) return [];
+        $shared = [];
+        if (($xml = $zip->getFromName('xl/sharedStrings.xml')) !== false) {
+            $doc = simplexml_load_string($xml);
+            foreach ($doc->si as $item) $shared[] = (string) ($item->t ?? implode('', array_map('strval', $item->r->t ?? [])));
+        }
+        $sheet = $zip->getFromName('xl/worksheets/sheet1.xml'); $zip->close();
+        if ($sheet === false) return [];
+        $doc = simplexml_load_string($sheet); $matrix = [];
+        foreach ($doc->sheetData->row as $xmlRow) {
+            $values = [];
+            foreach ($xmlRow->c as $cell) {
+                $ref = (string) $cell['r']; preg_match('/^([A-Z]+)/', $ref, $match); $column = 0;
+                foreach (str_split($match[1] ?? 'A') as $char) $column = $column * 26 + (ord($char) - 64);
+                $value = (string) ($cell->v ?? ''); if ((string) $cell['t'] === 's') $value = $shared[(int) $value] ?? '';
+                $values[$column - 1] = $value;
+            }
+            $matrix[] = $values;
+        }
+        $headers = array_map(fn ($value) => (string) $value, array_shift($matrix) ?: []); $rows = []; $line = 1;
+        foreach ($matrix as $values) { $line++; $rows[$line] = array_combine($headers, array_pad($values, count($headers), null)) ?: []; }
+        return $rows;
+    }
+
     public function routing()
     {
         $rules = DB::table('routing_rules')->leftJoin('providers', 'providers.id', '=', 'routing_rules.provider_id')->select('routing_rules.*', 'providers.name as provider_name')->latest('routing_rules.id')->paginate(25);
