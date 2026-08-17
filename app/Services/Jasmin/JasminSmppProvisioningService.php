@@ -15,6 +15,13 @@ class JasminSmppProvisioningService
         ], 'PROVISIONED');
     }
 
+    public function update(string $uid, string $systemId, ?string $password, int $maxBind): void
+    {
+        $arguments = ['--username' => $systemId, '--max-bind' => (string) $maxBind];
+        if ($password !== null && $password !== '') $arguments['--password'] = $password;
+        $this->run('update', $uid, $arguments, 'UPDATED');
+    }
+
     public function disable(string $uid): void
     {
         $this->run('disable', $uid, [], 'DISABLED');

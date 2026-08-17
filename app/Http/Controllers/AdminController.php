@@ -13,7 +13,8 @@ class AdminController extends Controller
 {
     public function users()
     {
-        return view('admin.users', ['users' => DB::table('users')->latest()->paginate(25)]);
+        $users = DB::table('users')->leftJoin('customer_smpp_accounts as smpp', 'smpp.user_id', '=', 'users.id')->select('users.*', 'smpp.system_id', 'smpp.max_bind', 'smpp.enabled as smpp_enabled')->orderByDesc('users.id')->paginate(25);
+        return view('admin.users', compact('users'));
     }
 
     public function storeUser(Request $request, JasminSmppProvisioningService $jasmin)
@@ -112,8 +113,9 @@ class AdminController extends Controller
         return back()->with('success', 'Routing rule created successfully.');
     }
 
-    public function updateUser(Request $request, int $userId)
+    public function updateUser(Request $request, int $userId, JasminSmppProvisioningService $jasmin)
     {
+        $account = DB::table('customer_smpp_accounts')->where('user_id', $userId)->first();
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:190', Rule::unique('users', 'email')->ignore($userId)],
@@ -126,13 +128,32 @@ class AdminController extends Controller
             'balance' => ['required', 'numeric'],
             'currency' => ['required', 'string', 'size:3'],
             'password' => ['nullable', 'string', 'min:8'],
+            'system_id' => ['required', 'alpha_dash', 'min:3', 'max:16', Rule::unique('customer_smpp_accounts', 'system_id')->ignore($userId, 'user_id')],
+            'smpp_password' => ['nullable', 'string', 'min:8', 'max:64'],
+            'max_bind' => ['required', 'integer', 'between:1,20'],
+            'smpp_enabled' => ['required', 'boolean'],
         ]);
+        $plainSmppPassword = $data['smpp_password'] ?? null;
+        $systemId = $data['system_id'];
+        $maxBind = (int) $data['max_bind'];
+        $smppEnabled = (bool) $data['smpp_enabled'];
+        unset($data['system_id'], $data['smpp_password'], $data['max_bind'], $data['smpp_enabled']);
         if (!empty($data['password'])) $data['password'] = Hash::make($data['password']);
         else unset($data['password']);
+        $balance = $data['balance'];
         unset($data['balance']);
-        $balance = $request->input('balance');
-        DB::table('users')->where('id', $userId)->update(array_merge($data, ['balance' => $balance, 'updated_at' => now()]));
-        return back()->with('success', 'User updated successfully.');
+
+        DB::transaction(function () use ($data, $balance, $userId, $account, $jasmin, $systemId, $plainSmppPassword, $maxBind, $smppEnabled): void {
+            DB::table('users')->where('id', $userId)->update(array_merge($data, ['balance' => $balance, 'updated_at' => now()]));
+            if ($account) {
+                $jasmin->update('u' . $userId, $systemId, $plainSmppPassword, $maxBind);
+                if ($smppEnabled) $jasmin->enable('u' . $userId); else $jasmin->disable('u' . $userId);
+                $local = ['system_id' => $systemId, 'max_bind' => $maxBind, 'enabled' => $smppEnabled, 'updated_at' => now()];
+                if ($plainSmppPassword !== null && $plainSmppPassword !== '') $local['password'] = encrypt($plainSmppPassword);
+                DB::table('customer_smpp_accounts')->where('user_id', $userId)->update($local);
+            }
+        });
+        return back()->with('success', 'User and Jasmin SMPP account updated successfully.');
     }
 
     public function destroyUser(int $userId, JasminSmppProvisioningService $jasmin)

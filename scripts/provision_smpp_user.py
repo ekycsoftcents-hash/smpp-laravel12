@@ -76,6 +76,29 @@ async def provision(args):
             pass
 
 
+async def update_user(args):
+    reader, writer = await login(args)
+    try:
+        await send(reader, writer, 'user -u ' + args.uid)
+        if args.username:
+            await send(reader, writer, 'username ' + args.username)
+        if args.password:
+            await send(reader, writer, 'password ' + args.password)
+        if args.max_bind is not None:
+            await send(reader, writer, 'smpps_cred quota max_bindings ' + str(args.max_bind))
+        writer.write('ok\n')
+        await writer.drain()
+        saved = await read_until(reader, ['jcli : '])
+        fail_if_error(saved)
+        print('UPDATED')
+    finally:
+        writer.close()
+        try:
+            await writer.wait_closed()
+        except Exception:
+            pass
+
+
 async def set_enabled(args, enabled):
     reader, writer = await login(args)
     try:
@@ -107,7 +130,7 @@ async def show_user(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('action', choices=['provision', 'disable', 'enable', 'show'])
+    parser.add_argument('action', choices=['provision', 'update', 'disable', 'enable', 'show'])
     parser.add_argument('--uid', required=True)
     parser.add_argument('--gid', default=os.getenv('JASMIN_GROUP_ID', 'laravelcustomers'))
     parser.add_argument('--username')
@@ -119,11 +142,15 @@ if __name__ == '__main__':
     parser.add_argument('--cli-password', default=os.getenv('JASMIN_CLI_PASSWORD', 'jclipwd'))
     args = parser.parse_args()
 
-    if args.action == 'provision' and not args.username and not args.password:
+    if args.action == 'provision' and (not args.username or not args.password):
         parser.error('provision requires --username and --password')
+    if args.action == 'update' and not any([args.username, args.password, args.max_bind is not None]):
+        parser.error('update requires --username, --password or --max-bind')
 
     if args.action == 'provision':
         asyncio.run(provision(args))
+    elif args.action == 'update':
+        asyncio.run(update_user(args))
     elif args.action == 'disable':
         asyncio.run(set_enabled(args, False))
     elif args.action == 'enable':
