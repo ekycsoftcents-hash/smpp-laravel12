@@ -1,9 +1,10 @@
 import smpp from 'smpp';
 import config from './config.js';
 import { getProviders, publishEvent, setBindState, updateMessage } from './store.js';
+import { decryptLaravel } from './laravel-crypto.js';
 
 function providerPassword(provider) {
-  return provider.password;
+  return decryptLaravel(provider.password);
 }
 
 export class ProviderManager {

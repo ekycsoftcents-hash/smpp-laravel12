@@ -2,6 +2,7 @@ import smpp from 'smpp';
 import { randomUUID } from 'node:crypto';
 import config from './config.js';
 import { getClientAccount, publishEvent, redis, saveMessage, setBindState } from './store.js';
+import { decryptLaravel } from './laravel-crypto.js';
 
 function decodeMessage(pdu) {
   return typeof pdu.short_message === 'string' ? pdu.short_message : (pdu.short_message?.message ?? '');
@@ -19,7 +20,7 @@ export function startClientServer({ submit }) {
     session.on('bind_transceiver', async (pdu) => {
       try {
         account = await getClientAccount(pdu.system_id);
-        const valid = account && pdu.password === account.password;
+        const valid = account && pdu.password === decryptLaravel(account.password);
         if (!valid) {
           session.send(pdu.response({ command_status: smpp.ESME_RINVSYSID }));
           session.close();

@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 const env = z.object({
   NODE_ENV: z.string().default('production'),
+  APP_KEY: z.string().min(1),
   GATEWAY_HTTP_PORT: z.coerce.number().default(3001),
   SMPP_CLIENT_BIND_HOST: z.string().default('0.0.0.0'),
   SMPP_CLIENT_BIND_PORT: z.coerce.number().default(2775),
