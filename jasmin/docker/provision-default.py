@@ -22,17 +22,29 @@ def read_until(sock, marker, timeout=15):
     return data.decode("utf-8", "replace")
 
 
+def read_until_any(sock, markers, timeout=15):
+    sock.settimeout(timeout)
+    data = b""
+    while not any(marker in data for marker in markers):
+        chunk = sock.recv(4096)
+        if not chunk:
+            raise RuntimeError("Jasmin CLI closed the connection")
+        data += chunk
+    return data.decode("utf-8", "replace")
+
+
 def command(sock, value):
     sock.sendall((value + "\n").encode())
     return read_until(sock, b"jcli : ")
 
 
 with socket.create_connection((HOST, PORT), timeout=15) as sock:
-    read_until(sock, b"Username: ")
-    sock.sendall((CLI_USER + "\n").encode())
-    read_until(sock, b"Password: ")
-    sock.sendall((CLI_PASSWORD + "\n").encode())
-    read_until(sock, b"jcli : ")
+    first_prompt = read_until_any(sock, [b"Username: ", b"jcli : "], timeout=15)
+    if "Username: " in first_prompt:
+        sock.sendall((CLI_USER + "\n").encode())
+        read_until(sock, b"Password: ")
+        sock.sendall((CLI_PASSWORD + "\n").encode())
+        read_until(sock, b"jcli : ")
 
     groups = command(sock, "group -l")
     if API_UID not in groups:
