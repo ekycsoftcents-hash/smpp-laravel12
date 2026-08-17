@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/health', [DashboardController::class, 'health'])->name('health');
+Route::get('/dashboard/live', [DashboardController::class, 'live'])->name('dashboard.live');
 
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/users', [AdminController::class, 'users'])->name('users');
