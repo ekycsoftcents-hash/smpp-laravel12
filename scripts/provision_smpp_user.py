@@ -109,7 +109,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('action', choices=['provision', 'disable', 'enable', 'show'])
     parser.add_argument('--uid', required=True)
-    parser.add_argument('--gid', default='laravel_customers')
+    parser.add_argument('--gid', default=os.getenv('JASMIN_GROUP_ID', 'laravelcustomers'))
     parser.add_argument('--username')
     parser.add_argument('--password')
     parser.add_argument('--max-bind', type=int, default=1)
