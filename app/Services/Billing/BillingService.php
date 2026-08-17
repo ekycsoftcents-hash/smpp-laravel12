@@ -3,15 +3,11 @@
 namespace App\Services\Billing;
 
 use Illuminate\Support\Facades\DB;
-use App\Services\Jasmin\JasminSmppProvisioningService;
 use App\Events\CustomerBalanceBelowThreshold;
 use RuntimeException;
 
 class BillingService
 {
-    public function __construct(private readonly JasminSmppProvisioningService $jasmin)
-    {
-    }
     public function onSubmission(int $smsId): void
     {
         DB::transaction(function () use ($smsId) {
@@ -107,7 +103,6 @@ class BillingService
             if ($debit > 0 && $balanceAfter < $threshold) {
                 $account = DB::table('customer_smpp_accounts')->where('user_id', $accountId)->lockForUpdate()->first();
                 if ($account && (bool) $account->enabled) {
-                    $this->jasmin->disable('u' . $accountId);
                     DB::table('customer_smpp_accounts')->where('user_id', $accountId)->update(['enabled' => false, 'updated_at' => now()]);
                     DB::afterCommit(function () use ($accountId, $balanceAfter, $threshold, $sms): void {
                         event(new CustomerBalanceBelowThreshold($accountId, $balanceAfter, $threshold, $sms->currency ?: config('smpp.currency', 'BDT'), $sms->id));

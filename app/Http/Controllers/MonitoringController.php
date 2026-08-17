@@ -12,14 +12,11 @@ class MonitoringController extends Controller
         $metrics = [];
         $online = false;
         try {
-            $base = rtrim(str_replace('/send', '', config('smpp.jasmin_http_url', 'http://jasmin:1401')), '/');
-            $response = Http::timeout(3)->get($base . '/metrics');
+            $response = Http::timeout(3)->get(rtrim(config('smpp.gateway.url'), '/') . '/health');
             $online = $response->successful();
-            foreach (preg_split('/\r?\n/', $response->body()) as $line) {
-                if (preg_match('/^(smppsapi_[a-z0-9_]+)\s+([0-9.]+)/', trim($line), $match)) {
-                    $metrics[$match[1]] = (float) $match[2];
-                }
-            }
+            $gateway = $response->json();
+            $metrics['gateway_provider_count'] = count($gateway['providers'] ?? []);
+            $metrics['gateway_bound_provider_count'] = collect($gateway['providers'] ?? [])->where('state', 'BOUND')->count();
         } catch (\Throwable $exception) {
             $online = false;
         }
@@ -31,14 +28,14 @@ class MonitoringController extends Controller
 
         return response()->json([
             'generated_at' => now()->toIso8601String(),
-            'jasmin_online' => $online,
+            'gateway_online' => $online,
             'global' => [
-                'live_connections' => (int) ($metrics['smppsapi_connected_count'] ?? 0),
-                'bound_transceivers' => (int) ($metrics['smppsapi_bound_trx_count'] ?? 0),
-                'bound_receivers' => (int) ($metrics['smppsapi_bound_rx_count'] ?? 0),
-                'bound_transmitters' => (int) ($metrics['smppsapi_bound_tx_count'] ?? 0),
-                'submit_sm_performed' => (int) ($metrics['smppsapi_submit_sm_count'] ?? 0),
-                'throttling_errors' => (int) ($metrics['smppsapi_throttling_error_count'] ?? 0),
+                'live_connections' => (int) ($metrics['gateway_bound_provider_count'] ?? 0),
+                'bound_transceivers' => (int) ($metrics['gateway_bound_provider_count'] ?? 0),
+                'bound_receivers' => 0,
+                'bound_transmitters' => 0,
+                'submit_sm_performed' => (int) DB::table('sms_messages')->whereDate('created_at', today())->count(),
+                'throttling_errors' => (int) DB::table('sms_messages')->whereDate('created_at', today())->where('provider_status', 'THROTTLED')->count(),
             ],
             'accounts' => $accounts,
         ]);
@@ -79,11 +76,11 @@ class MonitoringController extends Controller
 
     public function index()
     {
-        $jasminOnline = false;
+        $gatewayOnline = false;
         try {
-            $jasminOnline = Http::timeout(3)->get(config('smpp.jasmin_http_url', 'http://jasmin:1401') . '/ping')->successful();
+            $gatewayOnline = Http::timeout(3)->get(rtrim(config('smpp.gateway.url'), '/') . '/health')->successful();
         } catch (\Throwable $e) {
-            $jasminOnline = false;
+            $gatewayOnline = false;
         }
 
         $smppUsers = DB::table('customer_smpp_accounts')
@@ -92,13 +89,13 @@ class MonitoringController extends Controller
             ->orderBy('users.name')->get();
         $providers = DB::table('providers')->orderBy('priority')->orderBy('name')->get();
         $clientActivity = DB::table('sms_messages')->latest('sms_messages.created_at')->limit(50)->get();
-        $logFiles = glob('/var/log/jasmin/*.log') ?: [];
+        $logFiles = glob(storage_path('logs/*.log')) ?: [];
         $logs = [];
         foreach ($logFiles as $file) {
             $lines = @file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
             $logs[basename($file)] = array_slice(array_reverse($lines), 0, 80);
         }
 
-        return view('admin.monitoring', compact('jasminOnline', 'smppUsers', 'providers', 'clientActivity', 'logs'));
+        return view('admin.monitoring', compact('gatewayOnline', 'smppUsers', 'providers', 'clientActivity', 'logs'));
     }
 }

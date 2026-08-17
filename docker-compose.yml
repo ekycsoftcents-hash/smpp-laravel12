@@ -6,14 +6,13 @@ services:
     env_file: .env
     volumes:
       - ./.env:/var/www/html/.env
-      - jasmin_logs:/var/log/jasmin:ro
     ports:
       - "8080:80"
     depends_on:
       postgres: {condition: service_healthy}
       redis: {condition: service_healthy}
       rabbit-mq: {condition: service_healthy}
-      jasmin: {condition: service_healthy}
+      gateway: {condition: service_healthy}
     restart: unless-stopped
 
   queue-worker:
@@ -23,13 +22,12 @@ services:
     env_file: .env
     volumes:
       - ./.env:/var/www/html/.env
-      - jasmin_logs:/var/log/jasmin:ro
     command: php artisan queue:work redis --queue=sms-submit,default --sleep=1 --tries=8 --timeout=90 --max-jobs=1000 --max-time=3600
     depends_on:
       postgres: {condition: service_healthy}
       redis: {condition: service_healthy}
       rabbit-mq: {condition: service_healthy}
-      jasmin: {condition: service_healthy}
+      gateway: {condition: service_healthy}
     restart: unless-stopped
 
   postgres:
@@ -74,31 +72,25 @@ services:
       retries: 20
     restart: unless-stopped
 
-  jasmin:
-    env_file: .env
+  gateway:
     build:
-      context: ./jasmin
-      dockerfile: Dockerfile.compose
+      context: ./gateway
+      dockerfile: Dockerfile
+    env_file: .env
     environment:
-      REDIS_CLIENT_HOST: redis
-      REDIS_CLIENT_PORT: 6379
-      AMQP_BROKER_HOST: rabbit-mq
-      AMQP_BROKER_PORT: 5672
-      AMQP_BROKER_USERNAME: jasmin
-      AMQP_BROKER_PASSWORD: jasmin_secret
-    volumes:
-      - jasmin_config:/etc/jasmin
-      - jasmin_store:/etc/jasmin/store
-      - jasmin_logs:/var/log/jasmin
+      DATABASE_URL: postgres://smpp:smpp_secret@postgres:5432/smpp
+      REDIS_URL: redis://redis:6379
+      GATEWAY_HTTP_PORT: 3001
+      SMPP_CLIENT_BIND_HOST: 0.0.0.0
+      SMPP_CLIENT_BIND_PORT: 2775
     ports:
       - "2775:2775"
-      - "8990:8990"
-      - "1401:1401"
+      - "3001:3001"
     depends_on:
+      postgres: {condition: service_healthy}
       redis: {condition: service_healthy}
-      rabbit-mq: {condition: service_healthy}
     healthcheck:
-      test: ["CMD-SHELL", "python -c \"import socket; s=socket.create_connection(('127.0.0.1', 1401), 3); s.close()\""]
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3001/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 10s
       timeout: 5s
       retries: 30
@@ -108,6 +100,3 @@ volumes:
   smpp_pg:
   smpp_redis:
   smpp_rabbitmq:
-  jasmin_config:
-  jasmin_store:
-  jasmin_logs:
