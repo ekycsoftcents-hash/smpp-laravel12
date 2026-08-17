@@ -6,20 +6,26 @@ use RuntimeException;
 
 class JasminSmppProvisioningService
 {
-    public function provision(string $uid, string $systemId, string $password, int $maxBind = 1): void
+    public function provision(string $uid, string $systemId, string $password, int $maxBind = 1, float $tps = 1.0): void
     {
         $this->run('provision', $uid, [
             '--username' => $systemId,
             '--password' => $password,
             '--max-bind' => (string) $maxBind,
+            '--tps' => (string) $tps,
         ], 'PROVISIONED');
     }
 
-    public function update(string $uid, string $systemId, ?string $password, int $maxBind): void
+    public function update(string $uid, string $systemId, ?string $password, int $maxBind, float $tps): void
     {
-        $arguments = ['--username' => $systemId, '--max-bind' => (string) $maxBind];
+        $arguments = ['--username' => $systemId, '--max-bind' => (string) $maxBind, '--tps' => (string) $tps];
         if ($password !== null && $password !== '') $arguments['--password'] = $password;
         $this->run('update', $uid, $arguments, 'UPDATED');
+    }
+
+    public function delete(string $uid): void
+    {
+        $this->run('delete', $uid, [], 'DELETED');
     }
 
     public function disable(string $uid): void

@@ -32,19 +32,20 @@ class AdminController extends Controller
             'system_id' => ['required', 'alpha_dash', 'min:3', 'max:16', 'unique:customer_smpp_accounts,system_id'],
             'smpp_password' => ['required', 'string', 'min:8', 'max:64'],
             'max_bind' => ['required', 'integer', 'between:1,20'],
+            'tps' => ['required', 'numeric', 'gt:0', 'max:1000'],
         ]);
         $plainPassword = $data['password'];
         $smppPassword = $data['smpp_password'];
-        $systemId = $data['system_id']; $maxBind = (int) $data['max_bind'];
-        unset($data['smpp_password'], $data['system_id'], $data['max_bind']);
-        $userId = DB::transaction(function () use ($data, $plainPassword, $smppPassword, $systemId, $maxBind, $jasmin) {
+        $systemId = $data['system_id']; $maxBind = (int) $data['max_bind']; $tps = (float) $data['tps'];
+        unset($data['smpp_password'], $data['system_id'], $data['max_bind'], $data['tps']);
+        $userId = DB::transaction(function () use ($data, $plainPassword, $smppPassword, $systemId, $maxBind, $tps, $jasmin) {
             $data['password'] = Hash::make($plainPassword);
             $data['email_verified_at'] = now();
             $userId = DB::table('users')->insertGetId(array_merge($data, ['balance' => 1.000000, 'created_at' => now(), 'updated_at' => now()]));
-            $jasmin->provision('u' . $userId, $systemId, $smppPassword, $maxBind);
+            $jasmin->provision('u' . $userId, $systemId, $smppPassword, $maxBind, $tps);
             DB::table('customer_smpp_accounts')->insert([
                 'user_id' => $userId, 'system_id' => $systemId, 'password' => encrypt($smppPassword),
-                'max_bind' => $maxBind, 'tps' => 1, 'enabled' => true, 'created_at' => now(), 'updated_at' => now(),
+                'max_bind' => $maxBind, 'tps' => $tps, 'enabled' => true, 'created_at' => now(), 'updated_at' => now(),
             ]);
             return $userId;
         });
@@ -131,24 +132,26 @@ class AdminController extends Controller
             'system_id' => ['required', 'alpha_dash', 'min:3', 'max:16', Rule::unique('customer_smpp_accounts', 'system_id')->ignore($userId, 'user_id')],
             'smpp_password' => ['nullable', 'string', 'min:8', 'max:64'],
             'max_bind' => ['required', 'integer', 'between:1,20'],
+            'tps' => ['required', 'numeric', 'gt:0', 'max:1000'],
             'smpp_enabled' => ['required', 'boolean'],
         ]);
         $plainSmppPassword = $data['smpp_password'] ?? null;
         $systemId = $data['system_id'];
         $maxBind = (int) $data['max_bind'];
+        $tps = (float) $data['tps'];
         $smppEnabled = (bool) $data['smpp_enabled'];
-        unset($data['system_id'], $data['smpp_password'], $data['max_bind'], $data['smpp_enabled']);
+        unset($data['system_id'], $data['smpp_password'], $data['max_bind'], $data['tps'], $data['smpp_enabled']);
         if (!empty($data['password'])) $data['password'] = Hash::make($data['password']);
         else unset($data['password']);
         $balance = $data['balance'];
         unset($data['balance']);
 
-        DB::transaction(function () use ($data, $balance, $userId, $account, $jasmin, $systemId, $plainSmppPassword, $maxBind, $smppEnabled): void {
+        DB::transaction(function () use ($data, $balance, $userId, $account, $jasmin, $systemId, $plainSmppPassword, $maxBind, $tps, $smppEnabled): void {
             DB::table('users')->where('id', $userId)->update(array_merge($data, ['balance' => $balance, 'updated_at' => now()]));
             if ($account) {
-                $jasmin->update('u' . $userId, $systemId, $plainSmppPassword, $maxBind);
+                $jasmin->update('u' . $userId, $systemId, $plainSmppPassword, $maxBind, $tps);
                 if ($smppEnabled) $jasmin->enable('u' . $userId); else $jasmin->disable('u' . $userId);
-                $local = ['system_id' => $systemId, 'max_bind' => $maxBind, 'enabled' => $smppEnabled, 'updated_at' => now()];
+                $local = ['system_id' => $systemId, 'max_bind' => $maxBind, 'tps' => $tps, 'enabled' => $smppEnabled, 'updated_at' => now()];
                 if ($plainSmppPassword !== null && $plainSmppPassword !== '') $local['password'] = encrypt($plainSmppPassword);
                 DB::table('customer_smpp_accounts')->where('user_id', $userId)->update($local);
             }
@@ -160,11 +163,11 @@ class AdminController extends Controller
     {
         $account = DB::table('customer_smpp_accounts')->where('user_id', $userId)->first();
         if ($account) {
-            try { $jasmin->disable('u' . $userId); } catch (\Throwable $exception) { report($exception); }
+            $jasmin->delete('u' . $userId);
             DB::table('customer_smpp_accounts')->where('user_id', $userId)->delete();
         }
         DB::table('users')->where('id', $userId)->delete();
-        return back()->with('success', 'User deleted successfully.');
+        return back()->with('success', 'User and Jasmin SMPP account deleted successfully.');
     }
 
     public function updateProvider(Request $request, int $providerId)

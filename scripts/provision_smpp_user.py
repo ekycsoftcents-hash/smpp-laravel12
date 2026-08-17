@@ -62,6 +62,7 @@ async def provision(args):
         await send(reader, writer, 'username ' + args.username)
         await send(reader, writer, 'password ' + args.password)
         await send(reader, writer, 'smpps_cred quota max_bindings ' + str(args.max_bind))
+        await send(reader, writer, 'mt_messaging_cred quota smpps_throughput ' + str(args.tps))
         await send(reader, writer, 'smpps_cred authorization bind yes')
         writer.write('ok\n')
         await writer.drain()
@@ -86,6 +87,8 @@ async def update_user(args):
             await send(reader, writer, 'password ' + args.password)
         if args.max_bind is not None:
             await send(reader, writer, 'smpps_cred quota max_bindings ' + str(args.max_bind))
+        if args.tps is not None:
+            await send(reader, writer, 'mt_messaging_cred quota smpps_throughput ' + str(args.tps))
         writer.write('ok\n')
         await writer.drain()
         saved = await read_until(reader, ['jcli : '])
@@ -114,6 +117,20 @@ async def set_enabled(args, enabled):
             pass
 
 
+async def delete_user(args):
+    reader, writer = await login(args)
+    try:
+        output = await send(reader, writer, 'user -r ' + args.uid, prompts=('jcli : ',))
+        fail_if_error(output)
+        print('DELETED')
+    finally:
+        writer.close()
+        try:
+            await writer.wait_closed()
+        except Exception:
+            pass
+
+
 async def show_user(args):
     reader, writer = await login(args)
     try:
@@ -130,12 +147,13 @@ async def show_user(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('action', choices=['provision', 'update', 'disable', 'enable', 'show'])
+    parser.add_argument('action', choices=['provision', 'update', 'disable', 'enable', 'delete', 'show'])
     parser.add_argument('--uid', required=True)
     parser.add_argument('--gid', default=os.getenv('JASMIN_GROUP_ID', 'laravelcustomers'))
     parser.add_argument('--username')
     parser.add_argument('--password')
     parser.add_argument('--max-bind', type=int, default=1)
+    parser.add_argument('--tps', type=float, default=1.0)
     parser.add_argument('--host', default=os.getenv('JASMIN_CLI_HOST', 'jasmin'))
     parser.add_argument('--port', type=int, default=int(os.getenv('JASMIN_CLI_PORT', '8990')))
     parser.add_argument('--cli-username', default=os.getenv('JASMIN_CLI_USERNAME', 'jcliadmin'))
@@ -155,5 +173,7 @@ if __name__ == '__main__':
         asyncio.run(set_enabled(args, False))
     elif args.action == 'enable':
         asyncio.run(set_enabled(args, True))
+    elif args.action == 'delete':
+        asyncio.run(delete_user(args))
     else:
         asyncio.run(show_user(args))
