@@ -37,7 +37,7 @@ class AdminController extends Controller
         $userId = DB::transaction(function () use ($data, $plainPassword, $smppPassword, $systemId, $maxBind, $jasmin) {
             $data['password'] = Hash::make($plainPassword);
             $data['email_verified_at'] = now();
-            $userId = DB::table('users')->insertGetId(array_merge($data, ['created_at' => now(), 'updated_at' => now()]));
+            $userId = DB::table('users')->insertGetId(array_merge($data, ['balance' => 1.000000, 'created_at' => now(), 'updated_at' => now()]));
             $jasmin->provision('u' . $userId, $systemId, $smppPassword, $maxBind);
             DB::table('customer_smpp_accounts')->insert([
                 'user_id' => $userId, 'system_id' => $systemId, 'password' => encrypt($smppPassword),

@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Services\Billing\BillingService;
 use App\Services\Jasmin\JasminHttpAdapter;
+use App\Services\Jasmin\JasminSmppProvisioningService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -29,11 +30,29 @@ class SendSmsToJasmin implements ShouldQueue
         return [5, 15, 45, 120];
     }
 
-    public function handle(JasminHttpAdapter $jasmin, BillingService $billing): void
+    public function handle(JasminHttpAdapter $jasmin, BillingService $billing, JasminSmppProvisioningService $provisioning): void
     {
         $message = DB::table('sms_messages')->where('id', $this->smsId)->first();
         if (!$message || in_array($message->final_status, ['DELIVERED', 'FAILED', 'REJECTED'], true)) {
             return;
+        }
+
+        if ($message->customer_id) {
+            $customer = DB::table('users')->where('id', $message->customer_id)->first();
+            $account = DB::table('customer_smpp_accounts')->where('user_id', $message->customer_id)->first();
+            if (!$customer || !$account || !(bool) $account->enabled || (float) $customer->balance < 1.0) {
+                if ($account && (bool) $account->enabled && (float) ($customer->balance ?? 0) < 1.0) {
+                    $provisioning->disable('u' . $message->customer_id);
+                    DB::table('customer_smpp_accounts')->where('user_id', $message->customer_id)->update(['enabled' => false, 'updated_at' => now()]);
+                }
+                DB::table('sms_messages')->where('id', $this->smsId)->update([
+                    'final_status' => 'REJECTED',
+                    'provider_status' => 'BALANCE_BLOCKED',
+                    'metadata' => json_encode(['error' => 'Customer balance is below 1.00 or SMPP account is disabled.']),
+                    'updated_at' => now(),
+                ]);
+                return;
+            }
         }
 
         $jasminId = $jasmin->send([

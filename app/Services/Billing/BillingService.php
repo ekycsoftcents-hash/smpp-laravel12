@@ -3,10 +3,14 @@
 namespace App\Services\Billing;
 
 use Illuminate\Support\Facades\DB;
+use App\Services\Jasmin\JasminSmppProvisioningService;
 use RuntimeException;
 
 class BillingService
 {
+    public function __construct(private readonly JasminSmppProvisioningService $jasmin)
+    {
+    }
     public function onSubmission(int $smsId): void
     {
         DB::transaction(function () use ($smsId) {
@@ -98,6 +102,13 @@ class BillingService
 
         if ($accountId) {
             DB::table('users')->where('id', $accountId)->update(['balance' => $balanceAfter, 'updated_at' => now()]);
+            if ($debit > 0 && $balanceAfter < 1.0) {
+                $account = DB::table('customer_smpp_accounts')->where('user_id', $accountId)->lockForUpdate()->first();
+                if ($account && (bool) $account->enabled) {
+                    $this->jasmin->disable('u' . $accountId);
+                    DB::table('customer_smpp_accounts')->where('user_id', $accountId)->update(['enabled' => false, 'updated_at' => now()]);
+                }
+            }
         }
         DB::table('ledger_entries')->insert([
             'account_id' => $accountId, 'provider_id' => $providerId, 'sms_message_id' => $sms->id,
