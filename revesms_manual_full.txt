@@ -1,0 +1,2141 @@
+User Guide
+REVE SMS                                                                                                                                      Admin User Guide
+
+
+     Contents
+     Client .................................................................................................................................................6
+        SMS Client......................................................................................................................................6
+            Search Client ......................................................................................................................................... 6
+            Add Client .............................................................................................................................................. 7
+            Originating Client .................................................................................................................................. 7
+            Terminating Client............................................................................................................................... 12
+            Reseller Client ..................................................................................................................................... 13
+        SMPP Profile ................................................................................................................................ 13
+            Search SMPP Profile ............................................................................................................................ 13
+            Add SMPP Profile ................................................................................................................................ 15
+            Originating Client ................................................................................................................................ 15
+            Terminating Client............................................................................................................................... 17
+        HTTP Profile ................................................................................................................................. 19
+            Search HTTP Profile ............................................................................................................................. 19
+            Add HTTP Profile ................................................................................................................................. 20
+            Originating Client ................................................................................................................................ 20
+            Terminating Client............................................................................................................................... 22
+     Contact ............................................................................................................................................ 24
+        SMS Contact................................................................................................................................. 24
+            Search SMS Contact ............................................................................................................................ 24
+            Add SMS Contact................................................................................................................................. 26
+            Upload SMS Contact ........................................................................................................................... 28
+     Text and SenderID Management ...................................................................................................... 28
+        SenderID Translation .................................................................................................................... 28
+            Search SenderID Translation ............................................................................................................... 28
+            Add SenderID Translation ................................................................................................................... 29
+        Text Translation ........................................................................................................................... 31
+            Search Text Translation....................................................................................................................... 31
+            Add Text Translation ........................................................................................................................... 32
+        Content Whitelisting .................................................................................................................... 34
+            Search Content Whitelisting ............................................................................................................... 34
+            Add Content Whitelisting.................................................................................................................... 35
+
+
+                                                                                  2
+REVE SMS                                                                                                                                   Admin User Guide
+
+        Text and SenderID blocking .......................................................................................................... 35
+           Add Text and SenderID blocking ......................................................................................................... 36
+           SearchText and SenderID blocking ..................................................................................................... 36
+     Rates and Destinations..................................................................................................................... 37
+        SMS Country ................................................................................................................................ 37
+           Search SMS Country ............................................................................................................................ 37
+           Add SMS Country ................................................................................................................................ 38
+           Upload SMS Country ........................................................................................................................... 39
+        SMS Rate Plan .............................................................................................................................. 39
+           Search SMS Rate Plan ......................................................................................................................... 39
+           Add SMS Rate Plan .............................................................................................................................. 39
+     Route Management ......................................................................................................................... 41
+        SMS Route ................................................................................................................................... 41
+           Search SMS Route ............................................................................................................................... 41
+           Add SMS Route ................................................................................................................................... 42
+        SMS Translation ........................................................................................................................... 44
+           Search SMS Translation....................................................................................................................... 44
+           Add SMS Translation ........................................................................................................................... 44
+     Campaign Management ................................................................................................................... 45
+        SMS Mask .................................................................................................................................... 45
+           Search SMS Mask ................................................................................................................................ 46
+           Add Mask ............................................................................................................................................ 46
+           Assign Mask......................................................................................................................................... 47
+        SMS Campaign ............................................................................................................................. 47
+           Search SMS Campaign......................................................................................................................... 47
+           Add Generic Campaign........................................................................................................................ 47
+           Add Dynamic Campaign ...................................................................................................................... 49
+           Add Request Campaign ....................................................................................................................... 51
+           Pending Requests ................................................................................................................................ 52
+     Finance & Accounts Report .............................................................................................................. 52
+        Invoice Generation ....................................................................................................................... 52
+        Invoice Log ................................................................................................................................... 53
+        Profit Summary ............................................................................................................................ 54
+
+
+                                                                                3
+REVE SMS                                                                                                                                     Admin User Guide
+
+        Recharge History .......................................................................................................................... 54
+     General Report ................................................................................................................................ 55
+        Contact Report ............................................................................................................................. 55
+        Campaign Report ......................................................................................................................... 55
+        SMS History ................................................................................................................................. 55
+        General Activity Log ..................................................................................................................... 57
+     Live Report ...................................................................................................................................... 58
+        Pending SMS Approval ................................................................................................................. 58
+     Users ............................................................................................................................................... 58
+        Manage Users .............................................................................................................................. 58
+            Search User ......................................................................................................................................... 58
+            Add User.............................................................................................................................................. 59
+        Manage Account Manager ............................................................................................................ 60
+            Search Account Manager .................................................................................................................... 60
+            Add Account Manager ........................................................................................................................ 61
+        Manage Roles .............................................................................................................................. 61
+            Search Role.......................................................................................................................................... 61
+            Add Role .............................................................................................................................................. 62
+     Settings ........................................................................................................................................... 64
+        System Configuration ................................................................................................................... 64
+        Payment Gateway ........................................................................................................................ 64
+        System Currency .......................................................................................................................... 65
+        Mail Server Information ............................................................................................................... 65
+        Invoice Configuration ................................................................................................................... 66
+        MNP Configuration....................................................................................................................... 67
+            Search MNP Configuration.................................................................................................................. 67
+            Add MNP Configuration ...................................................................................................................... 67
+        System Alert ................................................................................................................................ 68
+     Security ........................................................................................................................................... 69
+        Restricted IPs ............................................................................................................................... 69
+        Unauthorized Access Log .............................................................................................................. 69
+        Active Login ................................................................................................................................. 70
+        Payment Security ......................................................................................................................... 70
+
+
+                                                                                  4
+REVE SMS                                                                                                                             Admin User Guide
+
+           Search Payment Security .................................................................................................................... 70
+           Add Payment Security ......................................................................................................................... 71
+
+
+
+
+                                                                            5
+REVE SMS                                                                                        Admin User Guide
+
+
+     Client
+     SMS Client
+     In REVE SMS there are 3 types of clients:
+         1. Originating
+         2. Terminating
+         3. Reseller
+
+
+      Type of Clients           Description
+      Originating               Originating client can send SMS to this platform using SMPP/HTTP protocol.
+                                Also originating client can use this platform interface to send bulk SMS
+                                through campaign.
+      Terminating               Terminating client is used as a gateway to terminate SMS request coming from
+                                originating client.
+      Reseller                  Reseller client can resell this platform to another client. They can create new
+                                originating client and reseller under them and create their offer to other
+                                clients.
+                                              Table 1: Type of Clients
+
+     Search Client
+     Search client is an important feature of REVE SMS. You can search clients with one or a combination of
+     multiple following criteria.
+     Search client page is shown here
+
+
+
+
+     Description of Search Criterion in Client  SMS Client
+
+
+
+
+                                                        6
+REVE SMS                                                                                           Admin User Guide
+
+      Search Criteria                     Description
+                                          To search a specific client, type here that client ID
+      SMS Client ID
+                                          and search.
+                                          You can narrow down your search by selecting client
+      SMS Client Type
+                                          type.
+                                          To search a specific client, type here that Parent’s client ID
+      Parent's Client ID
+                                          and search.
+                                          Here you can Put the value of how many records
+      Records Per Page
+                                          you want to see per page.
+
+
+     Description of Activity can be done in this search page:
+      Activity                            Description
+      Status                              You can Blocked or Active client.
+      Recharge                            You can recharge or credit or revoke amount within a moment.
+                                          If you click on the display window on Edit, you will be directed to
+      Edit
+                                          Edit page. Details of Edit page are similar to ‘Add’ window.
+                                          If you selected any active or blocked client from the display
+      Delete                              window and click on ‘Delete’ it will be deleted. A deleted client
+                                          cannot login, or call.
+
+
+     Add Client
+     To add any client, you have to go to “Client->SMS Client” page.
+
+     Here you can see add             button, by clicking add button you will be forwarded to add client page.
+
+
+     Originating Client
+     In client add page if you select originating client you will have following fields.
+
+
+
+
+                                                          7
+REVE SMS       Admin User Guide
+
+
+
+
+           8
+REVE SMS                                                                                        Admin User Guide
+
+
+
+
+     Description of the Window of Add an Originating Client:
+      Name of Field                    Description
+      Client Type                      Here you have selected client type as ‘Originating’
+                                       You can type any name which will be the ‘ID’ for this
+      Client ID
+                                       Originating Client.
+                                       You   should     use    a    strong    password   for   security   reason.
+      Billing Password
+                                       Password meter will tell you how strong the password is.
+      Confirm Billing Password         As a common practice, you need to confirm password.
+      Description                      You can put any description about the client
+                                       You can select a Reseller Client from the drop-down list if you want to
+      Parent                           create a client under a Reseller. If you leave it as None that means
+                                       client will be created under admin.
+                                       You can assign a Role for the Client from the drop-down list. By default,
+      Role
+                                       system will assign its default role.
+                                       For this client you can select account manager from drop down list who
+      Account Manager
+                                       will maintain this client.
+                                       If you want to give Originating client a balance at the time of adding
+                                       client, then you can give the amount of balance here.
+      Balance
+                                       You can leave it ‘0.00’ at the time of adding client and can recharge
+                                       later from recharge options.
+
+
+
+
+                                                       9
+REVE SMS                                                                                     Admin User Guide
+
+                                             Bill on Attempt: messages that are sent to termination will be
+                                              billed. Means SMS failed from termination will be billed as
+                                              well.
+                                             Bill on Submit: messages with the Sent/Delivered status are
+      Billing Policy
+                                              billed. Means for which we received DLR and for which we
+                                              didn’t receive DLR both will be billed.
+                                             Bill on Delivery: messages with the Delivered status are billed.
+                                              Means for which we received DLR will only bill.
+                                      Customer Currency. Rate will work based on rate plan settings only.
+      Currency                        This currency will be used while making online payment with different
+                                      currency.
+                                      Means the Client is Active and Deactivate. If client is deactivated then
+      Activation Status
+                                      they cannot send SMS.
+                                      Admin can enable content whitelisting for any specific country for a
+      Content Whitelisting            customer. If content whitelisting is enabled for a customer then that
+                                      customer can send those content only which are whitelisted.
+                          Table 2: Add an Originating Client with Basic Parameters
+
+
+     Invoice Settings:
+
+
+      Name of Field                   Description
+                                      If admin want to activate auto invoice or not. If auto invoice is
+      Auto Invoice                    activated then system will generate invoice automatically as per
+                                      configuration.
+                                      This is to configure invoice cycle for generating auto invoice. Admin
+                                      can generate following type of auto invoice
+                                             Daily
+      Invoice Cycle
+                                             Weekly
+                                             Monthly
+                                             Custom
+      Time                            In which hour/weekday/date/interval invoice should be generated.
+
+
+
+                                                       10
+REVE SMS                                                                                      Admin User Guide
+
+                                      If admin want to send email of invoice to client automatically or not. If
+      Auto emailer of invoice         enabled then system will mail the invoice to customer and if disabled
+                                      then system will generate the invoice but will not mail to customer.
+                                      Invoice due date will be written in generated invoice. But there is no
+      Invoice Due date
+                                      impact of due to in any other place.
+
+
+     Dipping Information:
+
+
+      Name of Field                   Description
+                                      If admin want can enable dipping for any client. After enabling
+      Country                         dipping admin can select for which client, he wants to enable the
+                                      dipping. Dipping will happen for the selected country only.
+                                      If dipping charge is enabled then for every SMS when the dipping
+                                      happened, if dipping is successful client will be charged an extra
+      Dipping Charge
+                                      cost as dipping cost. This cost will come from MNP configuration
+                                      under Settings menu.
+
+
+     Contact Information:
+      Name of Field                   Description
+      Name                            Here you need to provide the contact name of your client.
+      Date of Birth                   Here you need to provide the date of birth of your client.
+      Designation                     Provide designation of contact person.
+      Company Name                    You can write here your Client’s company name.
+      Phone                           This field for your client’s phone number.
+      Mobile No                       You can type here your Client’s Mobile number.
+      Email                           Write Client’s Email ID.
+      Address                         Type here Client’s address.
+      Country                         Select here the country.
+                Table 3: Add an Originating Client with Advance Parameters (Contact Information)
+
+
+
+
+                                                     11
+REVE SMS                                                                                          Admin User Guide
+
+     Billing Contact:
+     If your client contact information and billing contact same, you can check in ‘Same
+     as    contact      information’.   If     billing     contact   is   different   you   can   type   required
+     information.
+
+
+     Terminating Client
+     In the Add Client screen, if you select ‘Terminating’ you have following fields.
+
+
+
+
+     Description of the Window of Add a Terminating Client
+      Name of Field                          Description
+
+
+                                                             12
+REVE SMS                                                                                         Admin User Guide
+
+      Client Type
+      Client ID
+      Billing Password
+      Confirm Billing Password
+      Description
+                                         As described in Table 2.
+      Account Manager
+      Billing Policy
+      Client Balance
+      Currency
+      Activation Status
+      Unicode Encoding
+
+
+     Contact and invoice settings of a terminating client is similar to the Properties of add an originating
+     client.
+
+
+     Reseller Client
+     Reseller client add has all information same like originating client. Only difference is reseller client
+     does not have technical information. As reseller client cannot send SMS through API or SMPP
+     protocol. They have to create one originating client under them to send SMS using API or SMPP
+     protocol. Reseller client can create more originating and reseller client under them.
+
+
+     SMPP Profile
+     Search SMPP Profile
+     In REVE SMS you have option to create and maintain your own contact. Admin user can add contact one
+     by one Manually or can upload contact using CSV file.
+
+
+     Search SMPP Profile page is shown here.
+
+
+
+
+                                                        13
+REVE SMS                                                                                        Admin User Guide
+
+
+
+
+     Description of Search Criterion in Client  SMPP Profile
+      Search Criteria                  Description
+                                       To search a specific client’s contact information, type here that
+      Client ID
+                                       client ID. It will show the contacts added by client.
+      Phone NO                         You can search for a specific Number from the database.
+                                       You can search contacts with tag. Tag is used to identify the
+      Tag                              contact specification. You can choose your designer Tag to
+                                       identify a contact Number.
+                                       If you want to find contacts of a specific country from your
+      Country
+                                       database.
+      Status                           Status is used to search based on contact status like Active/Block.
+                                       Here you can Put the value of how many records
+      Records Per Page
+                                       you want to see per page.
+                                       You can use advance search to select more searching criteria to
+      Advance Search                   filter contact based on your given parameter and download the
+                                       contacts if necessary.
+      First Name                       If you want to filter contact with First Name
+      Last Name                        If you want to filter contact with Last Name
+      Gender                           If you want to filter contact with Gender information.
+      Age                              If you want to filter based on Age
+      Occupation                       If you want to filter based on Occupation
+      Financial Class                  If you want to filter based on financial class of contacts
+      Comment                          If you want to filter based on comment added for a contact
+      City                             If you want to filter based on the city you are searching
+
+
+
+                                                      14
+REVE SMS                                                                                           Admin User Guide
+
+      Address                          If you want to filter based on specific address of a city
+
+
+     Add SMPP Profile
+     To add any client, you have to go to “Client  SMPP Profile” page.
+
+     Here you can see add           button, by clicking add button you will be forwarded to add SMPP Profile
+     page.
+
+
+
+
+     Originating Client
+     Description of the Window of Add Originating Client SMPP Profile.
+      Name of Field                    Description
+      Client Type                      Here you have selected client type as Originating
+                                       You can type any name which will be the ‘ID’ for this
+      Client ID
+                                       Originating Client.
+      Profile Name                     You have to type a profile for the SMPP client
+
+
+                                                      15
+REVE SMS                                                                                    Admin User Guide
+
+      Profile Description          You can put any description about the client
+                                   You have to select a rate plan for that client from here. Non Masking
+                                   Rate Plan will be considered when the client is sending SMS from a
+      Non Masking Rate Plan        non-approved sender ID for him. Basically, this type of rate plan is used
+                                   for wholesale SMS when sender is sending SMS with their own
+                                   senderID.
+                                   You have to select a rate plan for that client from here. Masking rate is
+                                   considered when the client is sending SMS from his approved/assigned
+      Masking Rate Plan
+                                   senderID. Basically, this type of rate plan is used for bulk
+                                   SMS/campaign program.
+                                   You have to select a traffic type from the following options-
+                                          MT (Mobile Terminated): This is our regular traffic where a
+                                           customer sends SMS from our portal and we terminate it to
+      Traffic Type                         the carrier.
+                                          MO (Mobile Originated): This from operator SMS is coming
+                                           back to portal. MO SMS can be inboxed only or can send it to
+                                           MO short code/long code owner.
+                                   Means the Client is Active and Deactivate. If client is deactivated then
+      Activation Status
+                                   they cannot send SMS.
+                                   Under SMPP Configuration there is an option to provide system ID and
+      System ID & Password
+                                   password. Client has to keep this information secured as well.
+      Domain Name/IP               To which ID the system should initiate a bind request.
+                                   How many transactions per sec is allowed for a customer. If customer
+      TPS Limit                    send SMS request more than allowed number of SMS per second then
+                                   system will automatically reject those requests.
+      Allowed Number of sessions   Here user inputs the number of session system is allowed to bind.
+                                   Here the user inputs the allowed bind type for a session Transceiver/
+      Bind Mode
+                                   Transmitter & Receiver.
+      System Type value            The system type REVE SMS has to send in a bind request.
+      If Traffic Type is MT
+
+
+
+
+                                                  16
+REVE SMS                                                                                      Admin User Guide
+
+                                      If IP restriction is enabled then customer can send SMPP bind request
+                                      or http API request from the allowed IP only.
+      IP Restriction
+                                      If IP restriction is disabled client can use any IP to connect with REVE
+                                      SMS.
+      Port Number                     Destination port of SMPP server to which system should send a bind
+                                      request.
+      If Traffic Type is MO
+                                      Here the user needs to select Message ID type from the dropdown.
+                                      Based on this section the system will decide if the message ID needs to
+                                      be converted to match the DLR.
+      Message ID Type
+                                             None (Means no conversion is required)
+                                             submit_sm decimal & deliver_sm hex
+                                             submit_sm hex & deliver_sm decimal
+      MO Rate Plan                    admin will assign the rate plan for source countries
+                                      If Traffic Type is MO then the user needs to configure TON & NPI.
+                                             Originator TON
+      TON & NPI                              Destination TON
+                                             Origination NPI
+                                             Destination NPI
+                                         Table 3: Add Org SMPP Profile
+     Terminating Client
+     Description of the Window of Add Terminating Client SMPP Profile-
+      Name of Field                   Description
+      Client Type                     Here you have selected client type as Terminating
+                                      You can type any name which will be the ‘ID’ for this
+      Client ID
+                                      Terminating Client.
+      Profile Name                    You have to type a profile for the SMPP client
+      Profile Description             You can put any description about the client
+                                      You have to select a rate plan for that client from here. Non Masking
+      Non Masking Rate Plan           Rate Plan will be considered when the client is sending SMS from a
+                                      non-approved sender ID for him. Basically, this type of rate plan is used
+
+
+
+                                                     17
+REVE SMS                                                                                    Admin User Guide
+
+                                   for wholesale SMS when sender is sending SMS with their own
+                                   senderID.
+                                   You have to select a rate plan for that client from here. Masking rate is
+                                   considered when the client is sending SMS from his approved/assigned
+      Masking Rate Plan
+                                   senderID. Basically, this type of rate plan is used for bulk
+                                   SMS/campaign program.
+                                   You have to select a traffic type from the following options-
+                                          MT (Mobile Terminated): This is our regular traffic where a
+                                           customer sends SMS from our portal and we terminate it to
+      Traffic Type                         the carrier.
+                                          MO (Mobile Originated): This from operator SMS is coming
+                                           back to portal. MO SMS can be inboxed only or can send it to
+                                           MO short code/long code owner.
+                                   Means the Client is Active and Deactivate. If client is deactivated then
+      Activation Status
+                                   they cannot send SMS.
+                                   Under SMPP Configuration there is an option to provide system ID and
+      System ID & Password
+                                   password. Client has to keep this information secured as well.
+      Domain Name/IP               To which ID the system should initiate a bind request.
+                                   How many transactions per sec is allowed for a customer. If customer
+      TPS Limit                    send SMS request more than allowed number of SMS per second then
+                                   system will automatically reject those requests.
+                                   Here user inputs the number of session system is allowed to bind.
+      Allowed Number of sessions
+
+                                   Here the user inputs the allowed bind type for a session Transceiver/
+      Bind Mode
+                                   Transmitter & Receiver.
+                                   The system type REVE SMS has to send in a bind request.
+      System Type value
+
+                                   If Traffic Type is MT then the user needs to configure TON & NPI.
+                                          Originator TON
+      TON & NPI
+                                          Destination TON
+                                          Origination NPI
+
+
+
+                                                  18
+REVE SMS                                                                                        Admin User Guide
+
+                                                  Destination NPI
+      If Traffic Type is MT
+      Port Number                       Destination port of SMPP server to which system should send a bind
+                                        request.
+      If Traffic Type is MO
+
+
+     HTTP Profile
+     Search HTTP Profile
+     Search HTTP Profile is an important feature of REVE SMS. You can search HTTP Profile with one or a
+     combination of multiple following criteria.
+
+
+     Search client page is shown here
+
+
+
+
+     Description of Search Criterion in Client  HTTP Profile
+      Search Criteria                   Description
+                                        To search a specific client, type here that client ID
+      Client ID
+                                        and search.
+      Profile Name                      Here you need to type the Profile Name of the client
+                                        Here you need to select the status of the profile.
+      Status                                      Online
+                                                  Offline
+                                        Here you can Put the value of how many records
+      Records Per Page
+                                        you want to see per page.
+
+
+
+
+                                                            19
+REVE SMS                                                                                     Admin User Guide
+
+     Add HTTP Profile
+     To add any client, you have to go to “Client  HTTP Profile” page.
+
+     Here you can see add           button, by clicking add button you will be forwarded to add HTTP Profile
+     page.
+
+
+
+
+     Originating Client
+     Description of the Window of Add Originating Client HTTP Profile-
+      Name of Field                    Description
+      Client Type                      Here you have selected client type as Originating
+                                       You can type any name which will be the ‘ID’ for this
+      Client ID
+                                       Originating Client.
+      Profile Name                     You have to type a profile for the SMPP client
+      Profile Description              You can put any description about the client
+                                       You have to select a rate plan for that client from here. Non Masking
+      Non Masking Rate Plan
+                                       Rate Plan will be considered when the client is sending SMS from a
+
+
+                                                      20
+REVE SMS                                                                                    Admin User Guide
+
+                                   non-approved sender ID for him. Basically, this type of rate plan is used
+                                   for wholesale SMS when sender is sending SMS with their own
+                                   senderID.
+                                   You have to select a rate plan for that client from here. Masking rate is
+                                   considered when the client is sending SMS from his approved/assigned
+      Masking Rate Plan
+                                   senderID. Basically, this type of rate plan is used for bulk
+                                   SMS/campaign program.
+                                   You have to select a traffic type from the following options-
+                                            MT (Mobile Terminated): This is our regular traffic where a
+                                             customer sends SMS from our portal and we terminate it to
+      Traffic Type                           the carrier.
+                                            MO (Mobile Originated): This from operator SMS is coming
+                                             back to portal. MO SMS can be inboxed only or can send it to
+                                             MO short code/long code owner.
+                                   Means the Client is Active and Deactivate. If client is deactivated then
+      Activation Status
+                                   they cannot send SMS.
+                                   Under SMPP Configuration there is an option to provide system ID and
+      System ID & Password
+                                   password. Client has to keep this information secured as well.
+      Domain Name/IP               To which ID the system should initiate a bind request.
+                                   How many transactions per sec is allowed for a customer. If customer
+      TPS                          send SMS request more than allowed number of SMS per second then
+                                   system will automatically reject those requests.
+                                   Each installed SMS Platform will have a unique API Key given during
+      Secret Key                   installation and Secret Keys will be generated upon pressing generate
+                                   button.
+                                   Each installed SMS Platform will have a unique API Key given during
+      API Key                      installation and Secret Keys will be generated upon pressing generate
+                                   button.
+      Allowed Number of sessions   Here user inputs the number of session system is allowed to bind.
+                                   Here the user inputs the allowed bind type for a session Transceiver/
+      Bind Mode
+                                   Transmitter & Receiver.
+
+
+
+                                                    21
+REVE SMS                                                                                     Admin User Guide
+
+                                      The system type REVE SMS has to send in a bind request.
+      System Type value
+
+      If Traffic Type is MT
+                                      If IP restriction is enabled then customer can send SMPP bind request
+                                      or http API request from the allowed IP only.
+      IP Restriction
+                                      If IP restriction is disabled client can use any IP to connect with REVE
+                                      SMS.
+      Port Number                     Destination port of SMPP server to which system should send a bind
+                                      request.
+      If Traffic Type is MO
+                                      Here the user needs to select Message ID type from the dropdown.
+                                      Based on this section the system will decide if the message ID needs to
+                                      be converted to match the DLR.
+      Message ID Type                        None (Means no conversion is required)
+                                             submit_sm decimal & deliver_sm hex
+                                             submit_sm hex & deliver_sm decimal
+
+
+      MO Rate Plan                    admin will assign the rate plan for source countries
+                                      If Traffic Type is MO then the user needs to configure TON & NPI.
+                                             Originator TON
+      TON & NPI                              Destination TON
+                                             Origination NPI
+                                             Destination NPI
+                                        Table 4: Add Org SMPP Profile
+
+
+     Terminating Client
+     Description of the Window of Add Terminating Client HTTP Profile-
+      Name of Field                   Description
+      Client Type                     Here you have selected client type as Terminating
+                                      You can type any name which will be the ‘ID’ for this
+      Client ID
+                                      Terminating Client.
+
+
+
+                                                     22
+REVE SMS                                                                              Admin User Guide
+
+      Profile Name            You have to type a profile for the SMPP client
+      Profile Description     You can put any description about the client
+                              You have to select a rate plan for that client from here. Non Masking
+                              Rate Plan will be considered when the client is sending SMS from a
+      Non Masking Rate Plan   non-approved sender ID for him. Basically, this type of rate plan is used
+                              for wholesale SMS when sender is sending SMS with their own
+                              senderID.
+                              You have to select a rate plan for that client from here. Masking rate is
+                              considered when the client is sending SMS from his approved/assigned
+      Masking Rate Plan
+                              senderID. Basically, this type of rate plan is used for bulk
+                              SMS/campaign program.
+                              You have to select a traffic type from the following options-
+                                       MT (Mobile Terminated): This is our regular traffic where a
+                                        customer sends SMS from our portal and we terminate it to
+      Traffic Type                      the carrier.
+                                       MO (Mobile Originated): This from operator SMS is coming
+                                        back to portal. MO SMS can be inboxed only or can send it to
+                                        MO short code/long code owner.
+                              Means the Client is Active and Deactivate. If client is deactivated then
+      Activation Status
+                              they cannot send SMS.
+                              How many transactions per sec is allowed for a customer. If customer
+      TPS                     send SMS request more than allowed number of SMS per second then
+                              system will automatically reject those requests.
+      If Traffic Type is MO
+                              Each installed SMS Platform will have a unique API Key given during
+      Secret Key              installation and Secret Keys will be generated upon pressing generate
+                              button.
+                              Each installed SMS Platform will have a unique API Key given during
+      API Key                 installation and Secret Keys will be generated upon pressing generate
+                              button.
+      MO Rate Plan            admin will assign the rate plan for source countries
+
+
+
+                                               23
+REVE SMS                                                                                    Admin User Guide
+
+      If Traffic Type is MT
+                                       Select Method of URL submission
+      Submit URL Method                       GET
+                                              POST
+      Submit URL                       Here the user enters the URL of API
+                                       Here user can configure the parameters for the APIs. After completing
+      Configure Params                 configuration portal will show preview of the API. How system is
+                                       building the API for calling.
+                                       Select the DLR
+      DLR                                     Query
+                                              Push
+      If DLR is Query
+      Delivery URL                     Here the user enters the delivery URL of API
+                                       Select response type from
+      Response Type                           Json
+                                              Xml
+      Status Field
+      Failed Status
+      Field Separator                  Here the user enters the field separator
+      Pair Separator                   Here the user enters the pair separator
+
+
+     Contact
+     SMS Contact
+     In REVE SMS you have option to create and maintain your own contact. Admin user can add contact one
+     by one Manually or can upload contact using CSV file.
+
+
+     Search SMS Contact
+     Admin and client have their own contact database to maintain contact information for sending SMS. Any
+     client adding a new contact information will be loaded in admin database to enrich admin contact
+     database.
+
+
+
+
+                                                        24
+REVE SMS                                                                                      Admin User Guide
+
+
+
+
+     Contact can be searched based on the criteria given in the screen shot and will show a summary view of
+     the contact.
+      Search Criteria                 Description
+                                      To search a specific client’s contact information, type here that
+      SMS Client
+                                      client ID. It will show the contacts added by client.
+      Phone NO                        You can search for a specific Number from the database.
+                                      You can search contacts with tag. Tag is used to identify the
+      Tag                             contact specification. You can choose your designer Tag to
+                                      identify a contact Number.
+                                      If you want to find contacts of a specific country from your
+      Country
+                                      database.
+      Status                          Status is used to search based on contact status like Active/Block.
+                                      Here you can Put the value of how many records
+      Records Per Page
+                                      you want to see per page.
+                                      You can use advance search to select more searching criteria to
+      Advance Search                  filter contact based on your given parameter and download the
+                                      contacts if necessary.
+      First Name                      If you want to filter contact with First Name
+      Last Name                       If you want to filter contact with Last Name
+
+
+
+                                                     25
+REVE SMS                                                                                             Admin User Guide
+
+      Gender                             If you want to filter contact with Gender information.
+      Age                                If you want to filter based on Age
+      Occupation                         If you want to filter based on Occupation
+      Financial Class                    If you want to filter based on financial class of contacts
+      Comment                            If you want to filter based on comment added for a contact
+      City                               If you want to filter based on the city you are searching
+      Address                            If you want to filter based on specific address of a city
+
+
+     When you are seeing details, you can find the following information which is given below
+
+
+
+
+     You can Edit/Delete any contact from the details page. If admin is deleting a contact from his database
+     then that contact information will be deleted from every client of the system. But if client is search contact
+     of a specific client and do the delete operation then the delete will happen for client database only.
+     Admin cannot edit any contact information of client database. Admin can update the information from
+     his contact database only.
+
+
+     Admin can active/block contact from details search page as well. You can edit any existing contact
+     information from Search Page.
+
+
+     Add SMS Contact
+
+     To add contact, you have to click on           button from SMS Contact Page under Contact Management.
+     While adding contact you will find following information to add.
+
+
+
+
+                                                         26
+REVE SMS                                                                                          Admin User Guide
+
+
+
+
+     Descriptions of the fields are given in search criteria.
+     When you are trying to add a contact, you will get following options
+      Name of the Fields                  Description
+      Phone NO                            Here you have to type the phone number of a client.
+                                          You can add contacts with tag. Tag is used to identify the contact
+      Tag                                 specification. You can choose your designer Tag to identify a
+                                          contact Number.
+      First Name                          Here you have to fill in the client’s First Name
+      Last Name                           Here you have to fill in the client’s Last Name
+      Gender                              Here you have to fill in the client’s Gender information.
+      Age                                 Here you have to fill in the client’s Age
+      Occupation                          Here you have to fill in the client’s Occupation
+      Financial Class                     Here you have to fill in the client’s financial class
+      Comment                             Here you can add some comments for the contact
+      City                                Here you have to fill in the client’s City
+
+
+
+
+                                                          27
+REVE SMS                                                                                      Admin User Guide
+
+      Address                           Here you have to fill in the client’s Address
+                                           Table 5: Add SMS Contact
+
+
+     Upload SMS Contact
+
+     To upload contacts in bulk, you have to click on            button from SMS Contact Page under Contact
+     Management. While uploading contact you will find following information to add.
+
+
+
+
+     When you are trying to upload a contact, you will get following options
+      Name of the Fields                Description
+      Has Headers                       Select if the clients have headers.
+                                        You can add contacts with tag. Tag is used to identify the contact
+      Tag                               specification. You can choose your designer Tag to identify a
+                                        contact Number.
+      Browse for csv file               Here the user can upload phone numbers of clients in csv format.
+
+
+
+     Text and SenderID Management
+     SenderID Translation
+     SenderID contains the sender information of the SMS. On receiving SMS, the text displayed on handset as
+     a sender is the SenderID of that SMS. This SenderID can be translated through this platform. Means the
+     SenderID send from the origination can be translated to a different SenderID as per requirement.
+
+
+     Search SenderID Translation
+     Following search window will be available on clicking SenderID Translation menu:
+
+
+
+
+                                                        28
+REVE SMS                                                                                       Admin User Guide
+
+
+
+
+     All the added translation can be modified from here. All the added translation can be modified from here.
+     The following table details out the search criterion.
+      Search Criteria    Description
+      Originating
+                         The user can search by originating ClientID.
+      client
+      Country            The user can search by for the country to apply the translation
+      Operator           The user can search by a country for which operator to add the translation
+      Translation        The user can search by incoming and outgoing SenderID.
+      Status             The user can search by status of the settings (Enabled/Disabled).
+                         The user can search by stage translation will be happening.
+      Translation
+                         Pre routing: Means before selecting route translation will happen.
+      Stage
+                         Post routing: Means after selecting route for the selected route only translation will happen.
+      Terminating
+                         The user can search by termination client ID.
+      Client
+
+
+     Add SenderID Translation
+
+     To add SenderID translation admin has to click on          button
+
+
+
+
+                                                         29
+REVE SMS                                                                                             Admin User Guide
+
+
+
+
+     Description of the Window of SenderID Translation
+      Name of Field    Description
+      Originating
+                       Originating ClientID for which you want to add translation rule.
+      client
+      Country          For which country you want to apply the translation
+      Operator         From a country for which operator you want to add the translation
+      Translation      For what incoming SenderID what outgoing SenderID you want to set.
+      Status           Status of the settings (Enabled/Disabled).
+                       In which stage translation will be happening.
+      Translation
+                               Pre routing: Means before selecting route translation will happen.
+      Stage
+                               Post routing: Means after selecting route for the selected route only translation will happen.
+      Terminating      For which termination client you want to enable the translation. If post routing is selected then this
+      Client           client selection option will be available.
+
+
+
+
+                                                          30
+REVE SMS                                                                                       Admin User Guide
+
+
+     Text Translation
+     SMS Text is the content receiver getting. If admin want can translate that content.
+     Search Text Translation
+     Following search window will be available on clicking Text Translation menu:
+
+
+
+
+     All the added translation can be modified from here. The following table details out the search criterion.
+      Search Criteria   Description
+      Originating
+                        The user can search by Originating ClientID.
+      client
+      Country           The user can search by country for which country to apply the translation
+      Operator          The user can search by operator
+                        The user can search by what type of translation
+      Translation       Replace Text
+      Type              Fixed Text
+                        Remove Text
+      Translation       The user can search by for what incoming Text what outgoing Text.
+      URL in Text       If admin want admin can block those content having URL in text message.
+      Status            Status of the settings (Enabled/Disabled).
+                        In which stage translation will be happening.
+      Translation
+                        Pre routing: Means before selecting route translation will happen.
+      Stage
+                        Post routing: Means after selecting route for the selected route only translation will happen.
+      Terminating       For which termination client you want to enable the translation. If post routing is selected then
+      Client            this client selection option will be available.
+
+
+                                                        31
+REVE SMS                                                      Admin User Guide
+
+     Add Text Translation
+
+     To add text translation user has to click on    button
+
+
+
+
+                                                    32
+REVE SMS                                                                                    Admin User Guide
+
+
+
+
+     Description of the Window of Text Translation
+      Name of Field    Description
+      Originating
+                       Originating ClientID for which you want to add translation rule.
+      client
+      Country          For which country you want to apply the translation
+      Operator         From a country for which operator, you want to add the translation
+      Translation      What type of translation user want to do?
+      Type                    Replace Text: Means matching text will be replaced with new text.
+
+
+
+
+                                                     33
+REVE SMS                                                                                        Admin User Guide
+
+                                Fixed Text: System will send completely new text on matching the OTP or text
+                                 template. This is mostly used for OTP content. If Auto OTP detection is enabled then
+                                 system can detect OTP and can take action to replace the text.
+                                Remove Text: This is used for OTP. System can detect the OTP and can remove the
+                                 content from the OTP message and can send the OTP only.
+      Translation       For what incoming Text what outgoing Text you want to set.
+      URL in Text       If admin want admin can block those content having URL in text message.
+      Status            Status of the settings (Enabled/Disabled).
+                        In which stage translation will be happening.
+      Translation               Pre routing: Means before selecting route translation will happen.
+      Stage                     Post routing: Means after selecting route for the selected route only translation will
+                                 happen.
+      Terminating       For which termination client you want to enable the translation. If post routing is selected
+      Client            then this client selection option will be available.
+
+
+     Content Whitelisting
+     If admin enable content whitelisting for any origination client for a country, then for that country client
+     has to send whitelisted content only. Otherwise, content will be blocked and will be kept in pending.
+
+
+     Search Content Whitelisting
+     Following search window will be available on clicking Content Whitelisting menu:
+
+
+
+
+     All the added whitelisting can be modified from here. The following table details out the search criterion
+      Search Criteria   Description
+
+
+
+                                                        34
+REVE SMS                                                                                      Admin User Guide
+
+      SMS Text          The user can search by SMS content
+      Originating
+                        The user can search by Originating ClientID.
+      client
+      Country           The user can search by country for which country to apply the whitelisting.
+      Status            Status of the settings (Active/Bloked).
+
+
+
+     Add Content Whitelisting
+
+     To add content whitelisting user has to click on        button
+
+
+
+
+     Description of the Window of content whitelisting
+      Name of Field     Description
+      Originating
+                        Originating ClientID for which you want to add whitelisted content.
+      client
+      Country           For which country you want to add whitelisted content
+      Status            Status of the settings (Enabled/Disabled).
+                        Admin has to write the content which he want to whitelist. Content can be in English/Bangla
+      Whitelisted
+                        or any language. Also dynamic content can be used for whitelisting as well. Have to use %
+      Content
+                        where admin want to use variable in content.
+
+
+     Text and SenderID blocking
+     Admin can block any sensitive content or SenderID from the system.
+
+
+
+
+                                                        35
+REVE SMS                                                                                       Admin User Guide
+
+     Add Text and SenderID blocking
+
+     For adding content/SenderID blocking admin has to click on           button.
+
+
+
+
+     Description of the Window of content whitelisting
+      Name of Field     Description
+      Country           For which country you want to add blocked content or SenderID
+      Blocked
+                        The list of senderID which is required to block
+      SenderID list
+      Blocked Text
+                        The list of Text which is required to block
+      list
+
+
+     SearchText and SenderID blocking
+     Following search window will be available on clicking SearchText and SenderID blocking:
+
+
+
+
+                                                       36
+REVE SMS                                                                                     Admin User Guide
+
+
+
+
+     The following table details out the search criterion
+      Search Criteria   Description
+      SMS Text          The user can search by SMS content
+      Country           The user can search by country for which country to apply the whitelisting.
+      Status            Status of the settings (Active/Bloked).
+      SenderID          The user can search by SenderID
+
+
+
+     Rates and Destinations
+     SMS Country
+     Search SMS Country
+     You can search SMS Country with one or a combination of multiple following criteria.
+     Search SMS Country page is shown here
+
+
+
+
+     Description of Search Criterion are below -
+      Search Criteria                   Description
+      Country Name                      Here you can search SMS Country by Country Name.
+      Country Code                      Here you can search SMS Country by unique country code.
+
+
+
+
+                                                        37
+REVE SMS                                                                                    Admin User Guide
+
+      MCC                            Here you can search SMS Country by unique MCC code.
+      Operator Name                  Here you can search SMS Country by unique Operator Name.
+      Operator Code                  Here you can search SMS Country by unique Operator Code.
+
+
+     Add SMS Country
+
+     To add any SMS Country, you can click on         button from search page. Following page will appear
+     on clicking
+
+
+
+
+      Name of Field                  Description
+                                     Name of the Country like Bangladesh, India. If you start writing it will
+      Country Name
+                                     give you drop down suggestion to select country which you are adding.
+                                     Once you fill-up Country name, Country code will automatically be
+      Country Code
+                                     filled up.
+                                     MCC is Mobile Country Code. You can fill-up the Mobile Country code
+      MCC
+                                     of respective country you are selecting.
+                                     MNC is Mobile Network Code. You can fill-up the Network code of
+      MNC
+                                     respective country’s mobile operator.
+                                     If you want to provide the operator name to which you are terminating
+      Operator Name
+                                     the SMS.
+
+
+
+
+                                                    38
+REVE SMS                                                                                       Admin User Guide
+
+                                        If that operator has an identical prefix for their number range. You can
+      Operator Code
+                                        put that code there.
+
+
+     Upload SMS Country
+
+
+
+
+     Admin can upload SMS country from this section. Admin can download the template of uploading the
+     SMS country and can upload according to the template.
+
+     SMS Rate Plan
+     Search SMS Rate Plan
+     The search panel of SMS rate plan is shown below -
+
+
+
+
+     Add SMS Rate Plan
+     You can add new rate/upload rate/download rate from this page. You can also search rates using the given
+     criteria in the screenshot Add Rate Plan
+     To create rate plan, you have to go to Rates and Destinations>SMS Rate Plan
+
+
+
+                                                       39
+REVE SMS                                                                                      Admin User Guide
+
+
+     You have to click        add button to create a new rate.
+     When you click add rate plan button then this page comes where you can set your rate plan name.
+
+
+
+
+     Description of the Window of Add a Rate plan
+      Name of Field      Description
+      Rate       Plan
+                         Name of your rate plan
+      Name
+      Description        You can put any description about the rate plan
+                         If you want to add a fixed tax for the rate plan. Then with rate per SMS that tax will be
+      Tax
+                         included.
+                         You can add rate plan by 3 ways, you can add them from any existing plan, or from a file or
+      Options
+                         destination wise.
+
+
+
+
+                                                       40
+REVE SMS                                                                                       Admin User Guide
+
+
+     Route Management
+     From Route Management you can create route also you can add translation for SMS.
+
+
+     SMS Route
+     Search SMS Route
+     After adding a route following window will appear from where you can search a route based on
+     following criteria. There are two views of search route page. Following giving then details view.
+
+
+
+
+     Here is the quick view of search route page
+
+
+
+
+     Description of Search Criterion are below -
+      Search Criteria   Description
+
+
+
+
+                                                       41
+REVE SMS                                                                                        Admin User Guide
+
+      SMS
+      Originating       Originating client ID for which you are creating the route
+      Client
+      SMS
+      Terminating       Over which termination you want to set the route you have to select using this parameter
+      Client
+      Status            Status is used to search based on contact status like Enabled/Disabled.
+      Destination       Search by the destination you are have created route.
+      SenderID          Search by SenderID added while creating route.
+
+
+     Add SMS Route
+
+     You can add route in system from Route Management->SMS Route. Here you can see add
+     button, by clicking add button you will be forwarded to route add page
+
+
+
+
+     Description of the Window of Add a Route
+      Name of Field      Description
+      SMS Originating
+                         Originating client ID for which you are creating the route
+      Client
+      Allowed
+                         For the destination you are creating route
+      Destination
+      Priority           What priority you want to set for this route. Based on priority system will prepare route list.
+                         Here admin has to select which type of routing admin want to do
+      Route Type                Priority: Means all route will be added on a priority basis. So, within same priority
+                                 routes, traffic will be shared on a round robin basis.
+
+
+
+                                                       42
+REVE SMS                                                                                        Admin User Guide
+
+                               LCR: Means all route will work on Least cost routing. The termination which has the
+                                lowest rate will be selected on priority for routing.
+                        What type of termination you are selecting for sending SMS. SMPP/HTTP. Based on your
+      Service Type
+                        selection system will decide how it will send request to termination.
+      SMS
+      Terminating       Over which termination you want to set the route you have to select using this parameter
+      Client
+                        If you want to send a specific sender ID to termination you can set it here. For Masking SMS
+      Sender ID
+                        you have to set the assigned mask here to use the masking SMS over this route.
+      Ter Prefix        If termination gave you a specific rate for sending SMS
+      Strip Prefix      If termination want you to strip the country prefix before forwarding the request to them
+      Status            If the route is in block or active state.
+
+
+
+     Here you can see add               button in the data table, by clicking on the button you will be
+     forwarded Additional Configure page. The screen is shown below.
+
+
+
+
+                                                        43
+REVE SMS                                                                                      Admin User Guide
+
+     Here you can configure your added route. Description of the Window are as follows -
+      Name of Field     Description
+      Rate Plan
+                        Name of your rate plan
+      Name
+      Description       You can put any description about the rate plan
+
+
+     SMS Translation
+     Search SMS Translation
+     The search panel of SMS Translation is shown below -
+
+
+
+
+     Description of Search Criterion are below -
+
+
+      Search Criteria                   Description
+      Client Name                       Here you can search SMS Translation by Client Name.
+      Incoming Prefix                   Here you can search SMS Translation by Incoming Prefix.
+      Outgoing Prefix                   Here you can search SMS Translation by Outgoing Prefix.
+
+
+     Add SMS Translation
+     You can add receiver number translation from here. If you click on add following window will appear
+
+
+
+
+                                                      44
+REVE SMS                                                                                      Admin User Guide
+
+
+
+
+     Description of the Window of SMS Translation
+      Name of Field        Description
+      Client               Client name for which you are creating the translation
+      Translation          For what incoming prefix what outgoing prefix you want to set.
+
+
+     Take an example to understand the purpose of translation. For Bangladesh when user is sending SMS,
+     they might not use country code or sometime client use + at the beginning. So, to normalize all kind of
+     SMS request you can translate 01, +880 to 880. Now system can send all type of request of Bangladesh
+     properly to termination.
+     The translation is happening before rate and route check.
+
+     Campaign Management
+     SMS Mask
+     SMS Mask is the approved sender ID for the client. Which sender ID is unique for that client and only
+     that client can use that sender ID. This approved sender ID can be used while sending a campaign
+     request.
+     There are two types of SMS Mask
+              Own Mask: The Mask which is owned by the reseller. Reseller can assign his own mask to child
+               reseller.
+
+
+
+
+                                                         45
+REVE SMS                                                                                      Admin User Guide
+
+            Assigned Mask: If the mask owner assigns that mask to his child, then that mask will be assigned
+             mask of that client.
+     Search SMS Mask
+     Once you move to the SMS Mask page you will get the following window
+
+
+
+
+     From here admin can create a new mask for any client or assign any existing mask to child reseller of the
+     mask owner.
+     Description of Search Criterion are below -
+      Search Criteria   Description
+      Mask Name         Originating client ID for which you are creating the route
+      SMS Client
+                        Over which termination you want to set the route you have to select using this parameter
+      Name
+      Mask Status
+
+
+     Add Mask
+
+     Clicking on             will move you to the following page
+
+
+
+
+     Here Mask name is the mask which you are creating and SMS Client is the client to whom you are
+     assigning that mask.
+     Description of the Window of Add Mask -
+
+
+                                                       46
+REVE SMS                                                                                      Admin User Guide
+
+      Name of Field     Description
+      Mask Name         Here you enter the mask SMS name.
+      SMS Client
+                        Here you enter the SMS client name for which you are creating the SMS mask.
+      Name
+
+
+     Assign Mask
+
+     Clicking on             will move you to the similar page but this time you can select an already created
+     mask only and can assign that mask to child reseller of the mask owner only.
+
+
+     SMS Campaign
+     Search SMS Campaign
+     Once you move to the SMS Mask page you will get the following window
+
+
+
+
+     From here admin can create a new mask for any client or assign any existing mask to child reseller of the
+     mask owner.
+     There are 3 type of campaign available in REVE SMS.
+            Generic Campaign
+            Dynamic Campaign
+            Request Campaign
+     Add Generic Campaign
+
+     Clicking on             will move you to the following page
+
+
+
+
+                                                      47
+REVE SMS                                                                                 Admin User Guide
+
+
+
+
+     Description of the Window of Add Generic Campaign
+      Name of Field   Description
+      Campaign
+                      One unique name for campaign so that you can search later with the name
+      Name
+      Customer ID     Client ID for which you want to run the campaign
+      Sender ID       Approved Mask of the selected client which you want to send for the campaign
+
+
+
+
+      Campaign
+      Details                Manual Input means you are creating a new campaign with all customized selection
+                             From campaign will allow you to select an existing campaign which you can send
+                              again.
+
+
+
+
+                                                   48
+REVE SMS                                                                                     Admin User Guide
+
+                              From Template will allow you to select an existing campaign from which you can load
+                               the content and can modify it to send a new campaign.
+
+
+
+
+      Contact Source
+
+                              From file will allow you to upload a CSV file of contact in which you want to send
+                               SMS.
+                              Paste Number will allow you to write numbers in a text box to which you want to
+                               send the campaign SMS
+                              From Contacts will allow you to select contact from your contact database
+
+
+
+      Language
+                       You want to send the SMS in GSM 7 or ASCII encoding. System will detect encoding
+                       automatically after parsing the text and count the SMS Segment accordingly.
+      Message          The content of the SMS text you want to send to the selected contacts.
+      Campaign Start   You can select if you want to send the SMS instantly or you want to schedule the campaign to
+      time             send later.
+
+
+     Add Dynamic Campaign
+
+     Clicking on           will move you to the following page
+
+
+
+
+                                                     49
+REVE SMS                                                                                   Admin User Guide
+
+
+
+
+     Description of the Window of Add Dynamic Campaign
+      Name of Field    Description
+      Campaign
+                       One unique name for campaign so that you can search later with the name
+      Name
+      Customer ID      Client ID for which you want to run the campaign
+      Sender ID        Approved Mask of the selected client which you want to send for the campaign
+                       You can upload a CSV file where you can write the contact numbers in which you want to
+      Number input
+                       send the SMS and in another column the text which you want to send to those numbers.
+      Recipient        You have to select the column of the CSV file where you have contact numbers in which you
+      Column           want to send SMS.
+      Rearrange        If you have multiple columns in the CSV file then you can arrange after which column which
+      Column           should come to complete the text.
+      Campaign Start   You can select if you want to send the SMS instantly or you want to schedule the campaign to
+      time             send later.
+
+
+
+
+                                                    50
+REVE SMS                                                                                    Admin User Guide
+
+     Add Request Campaign
+
+     Clicking on               will move you to the following page
+
+
+
+
+     Request campaign is for manual adjustment. If you make any campaign outside the billing portal and want
+     to bring the history in REVE SMS portal you can do the manual settlement through this option.
+     Description of the Window of Add Request Campaign
+      Name of Field     Description
+      Campaign
+                        One unique name for campaign so that you can search later with the name.
+      Name
+      Customer ID       Client ID for which you want to run the campaign.
+      Termination       Over which termination you run this campaign outside the portal.
+      Total SMS         How many SMS you sent through this campaign
+      Cost/SMS          This is to calculate total cost for this campaign
+      Sender ID         Which Sender ID you have used for sending this campaign
+      Bill              How much was your termination cost for this campaign
+      Message           What text was sent for this campaign
+
+
+
+                                                        51
+REVE SMS                                                                                       Admin User Guide
+
+     Following searching window will appear when you move to the SMS campaign page. You will get the
+     searching criteria as showing in the screen shot
+
+
+
+
+     Pending Requests
+     From Pending requests, you can see if any campaign request/Masking request was made from the
+     reseller. Admin can approve/reject the campaign/masking request to run the campaign or allow the
+     mask.
+
+
+
+
+     Finance & Accounts Report
+     From this section you can see the financial activity like you can generate Profit Summary, Recharge
+     History Invoice Generation and Invoice Log from Finance & Accounts section.
+
+
+     Invoice Generation
+     From this page you can preview or generate invoice for clients. You can generate one invoice only for a
+     specific time period for a client. If you want to generate invoice again within same duration you have to
+     cancel old invoice 1st.
+
+
+
+
+                                                        52
+REVE SMS                                                                                      Admin User Guide
+
+
+
+     Invoice Generation page has the following option
+
+
+
+
+     Invoice Log
+     Once the invoice is created you can see the generated invoice from Invoice Log.
+
+
+
+
+     Above screenshot showing the generated invoice. You can download a generated invoice anytime in
+     PDF/Excel format. You can directly print the invoice as well. Here invoice due amount can be adjusted if
+     you select invoice during recharging client.
+
+
+
+
+                                                        53
+REVE SMS                                                                                       Admin User Guide
+
+
+     Profit Summary
+     From this section you can generate the profit calculation based on following criteria you can see in the
+     screenshot
+
+
+
+
+     Recharge History
+     From this section you can find the recharge history of your client. You can generate the recharge history
+     as per the selection criteria in the screenshot.
+
+
+
+
+                                                        54
+REVE SMS                                                                                     Admin User Guide
+
+
+     General Report
+     Contact Report
+     Admin can generate report based on contacts grouping. The following screen shows the contact report
+     page -
+
+
+
+
+     Campaign Report
+     Campaign Report shows aggregated campaign data of clients. The admin can generate reports by date
+     range, account manager, vendor and client name. The following screen shows SMS Campaign Report -
+
+
+
+
+     SMS History
+     From here you can generate details SMS history. You can find the selection criteria below
+
+
+
+
+                                                      55
+REVE SMS                                                                                        Admin User Guide
+
+
+
+
+     There are 3 type report generation option available
+            Details: You can generate a details report from this section. Where you will have a completed
+             report with details information based on the selected criteria.
+            Summary: Once you select the summary report you can find the following criteria to group the
+             report to generate the summary.
+
+
+
+
+             From Summary report you can find total how many SMS done and what was the cost and
+             segment count for the selected and groping criteria.
+            Specific: Once you select the specific report you can find the following criteria to generate that
+             report
+
+
+
+
+                                                        56
+REVE SMS                                                                                       Admin User Guide
+
+
+
+
+     General Activity Log
+     You can check the activity of the users and clients from this section. You can find who has created the
+     client from which IP, who changed the rate from a rate plan. All important activity users are doing from
+     billing are being tracked and stored.
+
+
+
+
+     You can generate module and action wise report for all activity within a given time range.
+
+
+
+
+                                                       57
+REVE SMS                                                                                      Admin User Guide
+
+
+     Live Report
+     Pending SMS Approval
+     admin can approve pending SMS or campaign from this page. The following screen shows the respective
+     page.
+
+
+
+
+     Description of the Search Criterion -
+      Search Criteria   Description
+      Originating
+                        ID of the originating client.
+      Client
+                        Select type from the following –
+      SMS type                  SMS
+                                Campaign
+
+     Users
+     Manage Users
+     Search User
+     The admin can search users from the search panel by different attributes and take necessary actions i.e.,
+     edit or delete them. The following screen shows the User Search page.
+
+
+
+
+     Description of the Search Criterion -
+      Search Criteria   Description
+      Username          Here you can search by the username of the user. Usernames are unique.
+
+
+                                                        58
+REVE SMS                                                                                       Admin User Guide
+
+      Role               Here the users can search by the Rolename of the users.
+
+
+     Add User
+
+     From Users->Manage Users section you can create new admin user. Clicking               will lead you to the
+     following page
+
+
+
+
+     You can set IP based restriction for user login, role-based access control and 2FA from this section while
+     creating or editing a user.
+     Description of the Window of Add User -
+      Name of Field      Description
+      Username           Here you enter the username of the user. Username should be unique.
+                         Here you enter a password. Password length should be minimum 6, with combination of a
+      Password
+                         digit, a lower case, an upper case and a special character
+      Confirm
+                         Here you rewrite your password. Password and Confirm Password should be same.
+      Password
+                         The users have to select one Password Expiration Type from the following option –
+      Password
+                                  At next login
+      Expiration Type
+                                  After 30 days
+
+
+
+                                                        59
+REVE SMS                                                                                         Admin User Guide
+
+                                After 90 days
+                        The users have to select one user role from the following option –
+                                Admin
+      Role                      Account Manager
+                                Client
+                                Reseller
+      Status            Status of the user (Active or Blocked)
+                        Here you enter the email address of the user. This email ID will be used for password
+      Mail Address
+                        retrieval.
+                        Here you input the login IP from the user will be logged in. if you want user to login from any
+      Login IP          IP, don’t add any IP. if you want user to login from specific single or multiple IP, you have to
+                        add those IP.
+      Name              Here you need to provide the contact name of the user.
+      Designation       Here you have to provide designation of the user.
+      Phone No          You can type here your user’s Phone number.
+      Address           Type here user’s address.
+
+
+     Manage Account Manager
+     Search Account Manager
+     Searching a user has the following criteria
+
+
+
+
+     Description of the Search Criterion -
+      Search Criteria   Description
+      User Name         Here the admin can search by the username of the Account Manager
+      Rolename          Here the admin can search by the role name of the Account Manager
+
+
+
+
+                                                       60
+REVE SMS                                                                                       Admin User Guide
+
+     Add Account Manager
+
+     From UsersManage Account Manager section you can create new admin user. Clicking                   will
+     lead you to the following page
+
+
+
+
+     You can set IP based restriction for user login, role-based access control and 2FA from this section while
+     creating or editing a user.
+
+
+     Manage Roles
+     From Manage Roles you can create a new role and assign that role to a client/system user. Client has a
+     highest permission assigned for him. So, assigning role with such permissions which client should not
+     have will also not allow client to have those permissions even having those permissions under client’s
+     role.
+
+
+     Search Role
+     Searching a role has the following criteria
+
+
+
+
+                                                       61
+REVE SMS                                                                                         Admin User Guide
+
+
+
+
+     Description of the Search Criterion -
+      Search Criteria    Description
+      Role Name          Here the users can search by the role name of the users
+      Role
+                         Here the users can search by the description of the role of the users
+      Description
+
+
+     Add Role
+
+     Clicking           will lead you to the following page
+
+
+
+
+                                                        62
+REVE SMS                                                                                   Admin User Guide
+
+
+
+
+     From here you can uncheck any permission which you don’t want to give to the user/client of the
+     system.
+      Field Name       Description
+      Role Name        Here you enter the Role name of the user. Role name should be unique.
+      Description      Here you enter the description of the role of the users.
+
+
+
+
+                                                     63
+REVE SMS                                                                                        Admin User Guide
+
+
+     Settings
+     System Configuration
+     From Settings System Configuration you can set your mail server here. This mail will be used to send
+     different alters generated by the system, rate out emails to client and different user and client
+     notification generated by the system.
+     Following information, you need to fill up to integrate your email with the system
+
+
+
+
+     Payment Gateway
+     From Settings Payment Gateway configure the payment gateway. The Following screen shows the
+     payment gateway page
+
+
+
+
+     Description of the Window of Payment Gateway
+      Field Name        Description
+      Enable/Disable    Here you check/uncheck the payment to enable or disable the payment gateway
+      PayPal
+                        The ID where amount will be deposited,
+      Account's ID
+
+
+
+
+                                                        64
+REVE SMS                                                                                        Admin User Guide
+
+
+     System Currency
+     From Settings-> System Currency can the user can manage and update system currency as well as
+     manage the rate of country-wise currency.
+
+
+     The following screen shows the system currency page -
+
+
+
+
+     Mail Server Information
+     From Settings  Mail Server Information you can set your mail server here. This mail will be used to
+     send different alters generated by the system, rate out emails to client and different user and client
+     notification generated by the system.
+
+
+     Following information, you need to fill up to integrate your email with the system
+
+
+
+
+                                                       65
+REVE SMS                                                                                     Admin User Guide
+
+
+
+
+     Invoice Configuration
+     From Settings  Invoice Configuration you can configure your invoice template by defining the bill
+     header, Management Contact Address and Bill Footer Text
+
+
+     The screen below shows the invoice configuration page -
+
+
+
+
+                                                      66
+REVE SMS                                                                       Admin User Guide
+
+
+     MNP Configuration
+     Search MNP Configuration
+     Searching MNP has the following criteria
+
+
+
+
+      Search Criteria               Description
+      Country                       Here you can search by the country name
+      Provider Name                 Here you can search by the provider name
+
+
+     Add MNP Configuration
+     To configure MNP, you have to go to Settings MNP Configuration
+
+     You have to click       add button to configure MNP.
+
+
+
+
+      Field Name                    Description
+
+
+                                                  67
+REVE SMS                                                                                     Admin User Guide
+
+                                       If admin want can enable dipping for any client. After enabling dipping
+      Country                          admin can select for which client, he wants to enable the dipping.
+                                       Dipping will happen for the selected country only.
+                                       If dipping charge is enabled then for every SMS when the dipping
+                                       happened, if dipping is successful client will be charged an extra cost
+      Charge
+                                       as dipping cost. This cost will come from MNP configuration under
+                                       Settings menu.
+      Description                      You can put any description regarding the MNP
+      Activation Status                If SMS dipping is Enabled or Disabled
+      API                              Here you enter the API key of the MNP
+      Provider                         Here you enter the name of your provider
+
+
+     System Alert
+     From Settings  System Alert the user will have the option to configure the system alert. The following
+     screen shows the system alert page -
+
+
+
+
+                                                      68
+REVE SMS                                                                                     Admin User Guide
+
+     From here you can check/uncheck any alert option which you don’t want to alert the user/client of the
+     system.
+              System Alert
+                  o   Under Disk Usage
+                  o   CPU Usage
+              Performance Alert
+                  o   Originating Client Wise
+                  o   Client wise ASR
+                  o   Client and Destination Wise ASR Below
+                  o   Client wise Success DLR
+                  o   Client and Destination wise Success DLR
+
+
+                  o   Terminating Client Wise
+                  o   Client wise ASR
+                  o   Client and Destination Wise ASR Below
+                  o   Client wise Success DLR
+                  o   Client and Destination wise Success DLR
+
+     Security
+     Restricted IPs
+     From Security-> Restricted IPs you can restrict IP here.
+
+
+
+
+     Admin can enable IP restriction for SMPP and HTTP connection for his originating client. Admin also can
+     add IP to whitelist or blacklist.
+
+     Unauthorized Access Log
+     From Security-> Unauthorized Access Log you can view Unauthorized Access Log IPs here.
+
+
+
+
+                                                        69
+REVE SMS                                                                                       Admin User Guide
+
+
+
+
+     Active Login
+     From Security-> Active Login you can view Active Login of users and clients here.
+
+
+
+
+     You can log out a particular user or blacklist the IP if you want.
+
+     Payment Security
+     Search Payment Security
+     Here you can search payment security details i.e., Daily Transaction Limit,         Monthly   Transaction
+     Limit, Daily Amount Limit, Monthly Amount Limit of your clients. The users can update or delete the
+
+     payment security details by clicking the respective         buttons if necessary.
+
+
+
+
+     Description of the Search Criterion of Payment Security
+      Search Criteria          Description
+      Target Client            Here the user will type the name of the target Client.
+
+
+
+
+                                                         70
+REVE SMS                                                                                      Admin User Guide
+
+     Add Payment Security
+     To add new Payment Security, you have to go to Security  Payment Security. You have to click
+
+               add button to create a Payment Security.
+     The following page shows the Payment Security Page
+
+
+
+
+     Description of the Window of Add a Payment Security
+      Name of Field             Description
+      Client                    Here the user will type the name of the Client.
+      Gateway Type              The user will select the Gateway Type here
+
+      Daily       Transaction
+                                Number of transactions allowed daily.
+      Limit
+
+      Monthly Transaction
+                                Number of transactions allowed monthly
+      Limit
+                                Daily total amount can be recharged through online payment.
+      Daily Amount Limit
+
+      Monthly        Amount Monthly total amount can be recharged through online payment.
+      Limit
+
+
+
+
+                                                        71
+
