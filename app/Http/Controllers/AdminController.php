@@ -207,23 +207,30 @@ class AdminController extends Controller
     public function reports(Request $request)
     {
         [$from, $to] = $this->reportRange($request);
-        $base = DB::table('sms_messages')->leftJoin('users', 'users.id', '=', 'sms_messages.customer_id')->whereBetween('sms_messages.created_at', [$from, $to]);
-        $summary = (clone $base)->selectRaw('currency, COUNT(*) as total_sms, COALESCE(SUM(customer_charge),0) as revenue, COALESCE(SUM(provider_cost),0) as provider_cost, COALESCE(SUM(profit),0) as profit')->groupBy('currency')->orderBy('currency')->get();
-        $status = (clone $base)->selectRaw('final_status, COUNT(*) as total')->groupBy('final_status')->orderBy('final_status')->pluck('total', 'final_status');
-        $messages = (clone $base)->select('sms_messages.*', 'users.name as customer_name')->latest('sms_messages.id')->paginate(50)->withQueryString();
+        $filters = $this->reportFilters($request);
+        $base = $this->reportBase($from, $to, $filters);
+        $summary = (clone $base)->selectRaw('sms_messages.currency, COUNT(*) as total_sms, COALESCE(SUM(customer_charge),0) as revenue, COALESCE(SUM(provider_cost),0) as provider_cost, COALESCE(SUM(profit),0) as profit')->groupBy('sms_messages.currency')->orderBy('sms_messages.currency')->get();
+        $clientBreakdown = (clone $base)->selectRaw("sms_messages.customer_id, COALESCE(users.name, 'API') as client_name, sms_messages.currency, COUNT(*) as total_sms, COALESCE(SUM(customer_charge),0) as revenue, COALESCE(SUM(provider_cost),0) as provider_cost, COALESCE(SUM(profit),0) as profit")->groupBy('sms_messages.customer_id', 'users.name', 'sms_messages.currency')->orderBy('client_name')->get();
+        $providerBreakdown = (clone $base)->selectRaw("sms_messages.provider_id, COALESCE(providers.name, 'Unassigned') as provider_name, sms_messages.currency, COUNT(*) as total_sms, COALESCE(SUM(customer_charge),0) as revenue, COALESCE(SUM(provider_cost),0) as provider_cost, COALESCE(SUM(profit),0) as profit")->groupBy('sms_messages.provider_id', 'providers.name', 'sms_messages.currency')->orderBy('provider_name')->get();
+        $status = (clone $base)->selectRaw('sms_messages.final_status, COUNT(*) as total')->groupBy('sms_messages.final_status')->orderBy('sms_messages.final_status')->pluck('total', 'final_status');
+        $messages = (clone $base)->select('sms_messages.*', 'users.name as customer_name', 'providers.name as provider_name')->latest('sms_messages.id')->paginate(50)->withQueryString();
         $totalSms = $summary->sum('total_sms');
-        return view('admin.reports', compact('from', 'to', 'summary', 'totalSms', 'status', 'messages'));
+        $customers = DB::table('users')->whereIn('account_type', ['customer', 'reseller'])->orderBy('name')->get(['id', 'name']);
+        $providers = DB::table('providers')->orderBy('name')->get(['id', 'name']);
+        $currencies = DB::table('currencies')->where('enabled', true)->orderBy('code')->pluck('code');
+        return view('admin.reports', compact('from', 'to', 'filters', 'summary', 'clientBreakdown', 'providerBreakdown', 'totalSms', 'status', 'messages', 'customers', 'providers', 'currencies'));
     }
 
     public function exportReports(Request $request)
     {
         [$from, $to] = $this->reportRange($request);
-        $rows = DB::table('sms_messages')->leftJoin('users', 'users.id', '=', 'sms_messages.customer_id')->whereBetween('sms_messages.created_at', [$from, $to])->select('sms_messages.*', 'users.name as customer_name')->orderBy('sms_messages.id')->cursor();
-        $filename = 'sms-profit-loss-' . $from->format('Ymd') . '-' . $to->format('Ymd') . '.csv';
+        $filters = $this->reportFilters($request);
+        $rows = $this->reportBase($from, $to, $filters)->select('sms_messages.*', 'users.name as customer_name', 'providers.name as provider_name')->orderBy('sms_messages.id')->cursor();
+        $filename = 'sms-profit-loss-' . $from->format('Ymd') . '-' . $to->format('Ymd') . ($filters['currency'] ? '-' . $filters['currency'] : '') . '.csv';
         return response()->streamDownload(function () use ($rows): void {
             $out = fopen('php://output', 'w');
-            fputcsv($out, ['Message ID', 'Customer', 'Destination', 'Status', 'Segments', 'Sale Revenue', 'Provider Buy Cost', 'Profit', 'Currency', 'Created At', 'DLR At']);
-            foreach ($rows as $row) fputcsv($out, [$row->message_id, $row->customer_name ?? 'API', $row->destination, $row->final_status, $row->segments, $row->customer_charge, $row->provider_cost, $row->profit, $row->currency, $row->created_at, $row->dlr_at]);
+            fputcsv($out, ['Message ID', 'Customer', 'Provider', 'Destination', 'Status', 'Segments', 'Sale Revenue', 'Provider Buy Cost', 'Profit', 'Currency', 'Created At', 'DLR At']);
+            foreach ($rows as $row) fputcsv($out, [$row->message_id, $row->customer_name ?? 'API', $row->provider_name ?? 'Unassigned', $row->destination, $row->final_status, $row->segments, $row->customer_charge, $row->provider_cost, $row->profit, $row->currency, $row->created_at, $row->dlr_at]);
             fclose($out);
         }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
@@ -234,6 +241,27 @@ class AdminController extends Controller
         $from = Carbon::parse($data['from'] ?? now()->startOfMonth()->toDateString())->startOfDay();
         $to = Carbon::parse($data['to'] ?? now()->toDateString())->endOfDay();
         return [$from, $to];
+    }
+
+    private function reportFilters(Request $request): array
+    {
+        return $request->validate([
+            'currency' => ['nullable', 'string', 'size:3'],
+            'client_id' => ['nullable', 'integer', 'exists:users,id'],
+            'provider_id' => ['nullable', 'integer', 'exists:providers,id'],
+        ]);
+    }
+
+    private function reportBase(Carbon $from, Carbon $to, array $filters)
+    {
+        $query = DB::table('sms_messages')
+            ->leftJoin('users', 'users.id', '=', 'sms_messages.customer_id')
+            ->leftJoin('providers', 'providers.id', '=', 'sms_messages.provider_id')
+            ->whereBetween('sms_messages.created_at', [$from, $to]);
+        if (!empty($filters['currency'])) $query->where('sms_messages.currency', strtoupper($filters['currency']));
+        if (!empty($filters['client_id'])) $query->where('sms_messages.customer_id', $filters['client_id']);
+        if (!empty($filters['provider_id'])) $query->where('sms_messages.provider_id', $filters['provider_id']);
+        return $query;
     }
 
     public function messages()
