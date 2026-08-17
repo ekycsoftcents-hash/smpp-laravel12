@@ -11,7 +11,8 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 COPY . .
 RUN chmod +x /var/www/html/scripts/provision_smpp_user.py
-RUN composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+ENV COMPOSER_MAX_PARALLEL_HTTP=1 COMPOSER_PROCESS_TIMEOUT=900
+RUN for attempt in 1 2 3 4 5; do composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction && exit 0; echo "Composer download failed; retrying in 15 seconds (attempt $attempt/5)"; sleep 15; done; exit 1
 RUN chown -R www-data:www-data storage bootstrap/cache
 RUN printf '%s\n' '<VirtualHost *:80>' 'DocumentRoot /var/www/html/public' '<Directory /var/www/html/public>' 'AllowOverride All' 'Require all granted' '</Directory>' '</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 EXPOSE 80
