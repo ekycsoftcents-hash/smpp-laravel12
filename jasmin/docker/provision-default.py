@@ -28,7 +28,7 @@ async def read_until(reader, markers, timeout=20):
 async def command(reader, writer, value):
     writer.write(value + "\n")
     await writer.drain()
-    return await read_until(reader, "jcli : ")
+    return await read_until(reader, ["jcli : ", "> "])
 
 
 async def provision():
