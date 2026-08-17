@@ -34,6 +34,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/reports/export', [AdminController::class, 'exportReports'])->name('reports.export');
     Route::get('/monitoring', [MonitoringController::class, 'index'])->name('monitoring');
     Route::get('/monitoring/live', [MonitoringController::class, 'live'])->name('monitoring.live');
+    Route::get('/monitoring/providers/live', [MonitoringController::class, 'providerLive'])->name('monitoring.providers.live');
     Route::get('/currencies', [CurrencyController::class, 'index'])->name('currencies');
     Route::post('/currencies', [CurrencyController::class, 'storeCurrency'])->name('currencies.store');
     Route::put('/currencies/{currency}', [CurrencyController::class, 'updateCurrency'])->name('currencies.update');
