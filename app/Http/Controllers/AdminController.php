@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Services\Jasmin\JasminSmppProvisioningService;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
@@ -108,6 +109,103 @@ class AdminController extends Controller
         $data['enabled'] = true; $data['created_at'] = now(); $data['updated_at'] = now();
         DB::table('routing_rules')->insert($data);
         return back()->with('success', 'Routing rule created successfully.');
+    }
+
+    public function updateUser(Request $request, int $userId)
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'email' => ['required', 'email', 'max:190', Rule::unique('users', 'email')->ignore($userId)],
+            'account_type' => ['required', 'in:admin,customer,reseller,operator'],
+            'role' => ['required', 'string', 'max:80'],
+            'customer_billing_mode' => ['required', 'in:SUBMISSION,DLR'],
+            'provider_billing_mode' => ['required', 'in:SUBMISSION,DLR'],
+            'billing_policy' => ['required', 'in:DUE,PREPAID'],
+            'credit_limit' => ['required', 'numeric', 'min:0'],
+            'balance' => ['required', 'numeric'],
+            'currency' => ['required', 'string', 'size:3'],
+            'password' => ['nullable', 'string', 'min:8'],
+        ]);
+        if (!empty($data['password'])) $data['password'] = Hash::make($data['password']);
+        else unset($data['password']);
+        unset($data['balance']);
+        $balance = $request->input('balance');
+        DB::table('users')->where('id', $userId)->update(array_merge($data, ['balance' => $balance, 'updated_at' => now()]));
+        return back()->with('success', 'User updated successfully.');
+    }
+
+    public function destroyUser(int $userId, JasminSmppProvisioningService $jasmin)
+    {
+        $account = DB::table('customer_smpp_accounts')->where('user_id', $userId)->first();
+        if ($account) {
+            try { $jasmin->disable('u' . $userId); } catch (\Throwable $exception) { report($exception); }
+            DB::table('customer_smpp_accounts')->where('user_id', $userId)->delete();
+        }
+        DB::table('users')->where('id', $userId)->delete();
+        return back()->with('success', 'User deleted successfully.');
+    }
+
+    public function updateProvider(Request $request, int $providerId)
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:120'], 'host' => ['required', 'string', 'max:190'],
+            'port' => ['required', 'integer', 'between:1,65535'], 'username' => ['required', 'string', 'max:120'],
+            'password' => ['nullable', 'string', 'max:255'], 'buy_rate' => ['required', 'numeric', 'min:0'],
+            'country' => ['nullable', 'string', 'max:80'], 'priority' => ['required', 'integer', 'min:1'],
+            'billing_mode' => ['required', 'in:SUBMISSION,DLR'], 'settlement_policy' => ['required', 'in:DUE,PREPAID'],
+            'credit_limit' => ['required', 'numeric', 'min:0'], 'payment_terms_days' => ['required', 'integer', 'min:0'],
+        ]);
+        if (!empty($data['password'])) $data['password'] = encrypt($data['password']); else unset($data['password']);
+        DB::table('providers')->where('id', $providerId)->update(array_merge($data, ['updated_at' => now()]));
+        return back()->with('success', 'Provider updated successfully.');
+    }
+
+    public function destroyProvider(int $providerId)
+    {
+        DB::table('providers')->where('id', $providerId)->delete();
+        return back()->with('success', 'Provider deleted successfully.');
+    }
+
+    public function updateRate(Request $request, int $rateId)
+    {
+        $data = $request->validate([
+            'provider_id' => ['nullable', 'exists:providers,id'], 'customer_id' => ['nullable', 'exists:users,id'],
+            'type' => ['required', 'string', 'max:50'], 'country' => ['nullable', 'string', 'max:80'],
+            'prefix' => ['nullable', 'string', 'max:40'], 'buy_rate' => ['required', 'numeric', 'min:0'],
+            'sell_rate' => ['required', 'numeric', 'min:0'], 'currency' => ['required', 'string', 'size:3'],
+            'buy_currency' => ['required', 'string', 'size:3'], 'sell_currency' => ['required', 'string', 'size:3'],
+        ]);
+        DB::table('rates')->where('id', $rateId)->update(array_merge($data, ['updated_at' => now()]));
+        return back()->with('success', 'Rate updated successfully.');
+    }
+
+    public function destroyRate(int $rateId)
+    {
+        DB::table('rates')->where('id', $rateId)->delete();
+        return back()->with('success', 'Rate deleted successfully.');
+    }
+
+    public function updateRouting(Request $request, int $ruleId)
+    {
+        $data = $request->validate([
+            'provider_id' => ['required', 'exists:providers,id'], 'customer_id' => ['nullable', 'exists:users,id'],
+            'type' => ['required', 'string', 'max:50'], 'country' => ['nullable', 'string', 'max:80'],
+            'prefix' => ['nullable', 'string', 'max:40'], 'strategy' => ['required', 'string', 'max:50'],
+            'priority' => ['required', 'integer', 'min:1'], 'enabled' => ['required', 'boolean'],
+        ]);
+        DB::table('routing_rules')->where('id', $ruleId)->update(array_merge($data, ['updated_at' => now()]));
+        return back()->with('success', 'Routing rule updated successfully.');
+    }
+
+    public function destroyRouting(int $ruleId)
+    {
+        DB::table('routing_rules')->where('id', $ruleId)->delete();
+        return back()->with('success', 'Routing rule deleted successfully.');
+    }
+
+    public function reports()
+    {
+        return $this->messages();
     }
 
     public function messages()
