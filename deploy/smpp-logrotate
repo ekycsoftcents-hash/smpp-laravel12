@@ -1,0 +1,11 @@
+/var/log/smpp/recovery-jobs.log /var/log/smpp/queue-worker.log /var/log/smpp/dlr-sync.log {
+    daily
+    rotate 14
+    maxsize 100M
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+    create 0640 root adm
+}

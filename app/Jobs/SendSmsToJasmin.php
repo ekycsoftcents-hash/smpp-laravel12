@@ -17,8 +17,8 @@ class SendSmsToJasmin implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $tries = 5;
-    public int $timeout = 45;
+    public int $tries = 8;
+    public int $timeout = 90;
 
     public function __construct(public readonly int $smsId)
     {
@@ -27,7 +27,7 @@ class SendSmsToJasmin implements ShouldQueue
 
     public function backoff(): array
     {
-        return [5, 15, 45, 120];
+        return [5, 15, 45, 120, 300, 600, 900];
     }
 
     public function handle(JasminHttpAdapter $jasmin, BillingService $billing, JasminSmppProvisioningService $provisioning): void
