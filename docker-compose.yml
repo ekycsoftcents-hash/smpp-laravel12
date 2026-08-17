@@ -96,7 +96,7 @@ services:
       redis: {condition: service_healthy}
       rabbit-mq: {condition: service_healthy}
     healthcheck:
-      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:1401/ping', timeout=3)\""]
+      test: ["CMD-SHELL", "python -c \"import socket; s=socket.create_connection(('127.0.0.1', 1401), 3); s.close()\""]
       interval: 10s
       timeout: 5s
       retries: 30

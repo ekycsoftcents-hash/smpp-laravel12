@@ -25,7 +25,7 @@ docker compose up -d
 
 # Wait for Jasmin's native HTTP API and jcli to become available.
 for attempt in $(seq 1 60); do
-  if docker compose exec -T jasmin python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:1401/ping', timeout=2)" >/dev/null 2>&1; then
+  if docker compose exec -T jasmin python -c "import socket; s=socket.create_connection(('127.0.0.1', 1401), 2); s.close()" >/dev/null 2>&1; then
     break
   fi
   if [ "$attempt" = "60" ]; then
