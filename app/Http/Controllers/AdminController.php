@@ -342,7 +342,7 @@ class AdminController extends Controller
         $base = $this->reportBase($from, $to, $filters);
         $summary = (clone $base)->selectRaw('sms_messages.currency, COUNT(*) as total_sms, COALESCE(SUM(customer_charge),0) as revenue, COALESCE(SUM(provider_cost),0) as provider_cost, COALESCE(SUM(profit),0) as profit')->groupBy('sms_messages.currency')->orderBy('sms_messages.currency')->get();
         $clientBreakdown = (clone $base)->selectRaw("sms_messages.customer_id, COALESCE(users.name, 'API') as client_name, sms_messages.currency, COUNT(*) as total_sms, COALESCE(SUM(customer_charge),0) as revenue, COALESCE(SUM(provider_cost),0) as provider_cost, COALESCE(SUM(profit),0) as profit")->groupBy('sms_messages.customer_id', 'users.name', 'sms_messages.currency')->orderBy('client_name')->get();
-        $providerBreakdown = (clone $base)->selectRaw("sms_messages.provider_id, COALESCE(providers.name, 'Unassigned') as provider_name, sms_messages.currency, COUNT(*) as total_sms, COALESCE(SUM(customer_charge),0) as revenue, COALESCE(SUM(provider_cost),0) as provider_cost, COALESCE(SUM(profit),0) as profit")->groupBy('sms_messages.provider_id', 'providers.name', 'sms_messages.currency')->orderBy('provider_name')->get();
+        $providerBreakdown = (clone $base)->selectRaw("sms_messages.provider_id, COALESCE(providers.name, 'Unassigned') as provider_name, sms_messages.currency, COUNT(*) as total_sms, COALESCE(SUM(sms_messages.segments),0) as total_segments, SUM(CASE WHEN sms_messages.final_status = 'DELIVERED' THEN 1 ELSE 0 END) as delivered_sms, SUM(CASE WHEN sms_messages.final_status IN ('FAILED','REJECTED','EXPIRED') THEN 1 ELSE 0 END) as failed_sms, SUM(CASE WHEN sms_messages.final_status NOT IN ('DELIVERED','FAILED','REJECTED','EXPIRED') THEN 1 ELSE 0 END) as pending_sms, COALESCE(SUM(customer_charge),0) as revenue, COALESCE(SUM(provider_cost),0) as provider_cost, COALESCE(SUM(profit),0) as profit, CASE WHEN COUNT(*) = 0 THEN 0 ELSE ROUND((SUM(CASE WHEN sms_messages.final_status = 'DELIVERED' THEN 1 ELSE 0 END)::numeric / COUNT(*)) * 100, 2) END as success_rate, CASE WHEN COALESCE(SUM(customer_charge),0) = 0 THEN 0 ELSE ROUND((COALESCE(SUM(profit),0) / SUM(customer_charge)) * 100, 2) END as profit_margin")->groupBy('sms_messages.provider_id', 'providers.name', 'sms_messages.currency')->orderBy('provider_name')->get();
         $status = (clone $base)->selectRaw('sms_messages.final_status, COUNT(*) as total')->groupBy('sms_messages.final_status')->orderBy('sms_messages.final_status')->pluck('total', 'final_status');
         $messages = (clone $base)->select('sms_messages.*', 'users.name as customer_name', 'providers.name as provider_name')->latest('sms_messages.id')->paginate(50)->withQueryString();
         $totalSms = $summary->sum('total_sms');
@@ -350,6 +350,20 @@ class AdminController extends Controller
         $providers = DB::table('providers')->orderBy('name')->get(['id', 'name']);
         $currencies = DB::table('currencies')->where('enabled', true)->orderBy('code')->pluck('code');
         return view('admin.reports', compact('from', 'to', 'filters', 'summary', 'clientBreakdown', 'providerBreakdown', 'totalSms', 'status', 'messages', 'customers', 'providers', 'currencies'));
+    }
+
+    public function exportProviderReports(Request $request)
+    {
+        [$from, $to] = $this->reportRange($request);
+        $filters = $this->reportFilters($request);
+        $rows = $this->reportBase($from, $to, $filters)->selectRaw("sms_messages.provider_id, COALESCE(providers.name, 'Unassigned') as provider_name, sms_messages.currency, COUNT(*) as total_sms, COALESCE(SUM(sms_messages.segments),0) as total_segments, SUM(CASE WHEN sms_messages.final_status = 'DELIVERED' THEN 1 ELSE 0 END) as delivered_sms, SUM(CASE WHEN sms_messages.final_status IN ('FAILED','REJECTED','EXPIRED') THEN 1 ELSE 0 END) as failed_sms, SUM(CASE WHEN sms_messages.final_status NOT IN ('DELIVERED','FAILED','REJECTED','EXPIRED') THEN 1 ELSE 0 END) as pending_sms, COALESCE(SUM(customer_charge),0) as revenue, COALESCE(SUM(provider_cost),0) as provider_cost, COALESCE(SUM(profit),0) as profit, CASE WHEN COUNT(*) = 0 THEN 0 ELSE ROUND((SUM(CASE WHEN sms_messages.final_status = 'DELIVERED' THEN 1 ELSE 0 END)::numeric / COUNT(*)) * 100, 2) END as success_rate, CASE WHEN COALESCE(SUM(customer_charge),0) = 0 THEN 0 ELSE ROUND((COALESCE(SUM(profit),0) / SUM(customer_charge)) * 100, 2) END as profit_margin")->groupBy('sms_messages.provider_id', 'providers.name', 'sms_messages.currency')->orderBy('provider_name')->cursor();
+        $filename = 'provider-performance-' . $from->format('Ymd') . '-' . $to->format('Ymd') . ($filters['currency'] ? '-' . $filters['currency'] : '') . '.csv';
+        return response()->streamDownload(function () use ($rows): void {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['Provider', 'Currency', 'Total SMS', 'Segments', 'Delivered', 'Failed', 'Pending', 'Success Rate %', 'Sale Revenue', 'Buy Cost', 'Profit/Loss', 'Profit Margin %']);
+            foreach ($rows as $row) fputcsv($out, [$row->provider_name, $row->currency, $row->total_sms, $row->total_segments, $row->delivered_sms, $row->failed_sms, $row->pending_sms, $row->success_rate, $row->revenue, $row->provider_cost, $row->profit, $row->profit_margin]);
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
     public function exportReports(Request $request)

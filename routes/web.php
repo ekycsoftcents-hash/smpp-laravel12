@@ -32,6 +32,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/messages', [AdminController::class, 'messages'])->name('messages');
     Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
     Route::get('/reports/export', [AdminController::class, 'exportReports'])->name('reports.export');
+    Route::get('/reports/providers/export', [AdminController::class, 'exportProviderReports'])->name('reports.providers.export');
     Route::get('/monitoring', [MonitoringController::class, 'index'])->name('monitoring');
     Route::get('/monitoring/live', [MonitoringController::class, 'live'])->name('monitoring.live');
     Route::get('/monitoring/providers/live', [MonitoringController::class, 'providerLive'])->name('monitoring.providers.live');
