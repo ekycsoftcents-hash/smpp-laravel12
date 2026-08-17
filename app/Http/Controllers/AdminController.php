@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Services\Jasmin\JasminSmppProvisioningService;
 use Illuminate\Support\Facades\Hash;
@@ -203,9 +204,36 @@ class AdminController extends Controller
         return back()->with('success', 'Routing rule deleted successfully.');
     }
 
-    public function reports()
+    public function reports(Request $request)
     {
-        return $this->messages();
+        [$from, $to] = $this->reportRange($request);
+        $base = DB::table('sms_messages')->leftJoin('users', 'users.id', '=', 'sms_messages.customer_id')->whereBetween('sms_messages.created_at', [$from, $to]);
+        $summary = (clone $base)->selectRaw('currency, COUNT(*) as total_sms, COALESCE(SUM(customer_charge),0) as revenue, COALESCE(SUM(provider_cost),0) as provider_cost, COALESCE(SUM(profit),0) as profit')->groupBy('currency')->orderBy('currency')->get();
+        $status = (clone $base)->selectRaw('final_status, COUNT(*) as total')->groupBy('final_status')->orderBy('final_status')->pluck('total', 'final_status');
+        $messages = (clone $base)->select('sms_messages.*', 'users.name as customer_name')->latest('sms_messages.id')->paginate(50)->withQueryString();
+        $totalSms = $summary->sum('total_sms');
+        return view('admin.reports', compact('from', 'to', 'summary', 'totalSms', 'status', 'messages'));
+    }
+
+    public function exportReports(Request $request)
+    {
+        [$from, $to] = $this->reportRange($request);
+        $rows = DB::table('sms_messages')->leftJoin('users', 'users.id', '=', 'sms_messages.customer_id')->whereBetween('sms_messages.created_at', [$from, $to])->select('sms_messages.*', 'users.name as customer_name')->orderBy('sms_messages.id')->cursor();
+        $filename = 'sms-profit-loss-' . $from->format('Ymd') . '-' . $to->format('Ymd') . '.csv';
+        return response()->streamDownload(function () use ($rows): void {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['Message ID', 'Customer', 'Destination', 'Status', 'Segments', 'Sale Revenue', 'Provider Buy Cost', 'Profit', 'Currency', 'Created At', 'DLR At']);
+            foreach ($rows as $row) fputcsv($out, [$row->message_id, $row->customer_name ?? 'API', $row->destination, $row->final_status, $row->segments, $row->customer_charge, $row->provider_cost, $row->profit, $row->currency, $row->created_at, $row->dlr_at]);
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    private function reportRange(Request $request): array
+    {
+        $data = $request->validate(['from' => ['nullable', 'date'], 'to' => ['nullable', 'date', 'after_or_equal:from']]);
+        $from = Carbon::parse($data['from'] ?? now()->startOfMonth()->toDateString())->startOfDay();
+        $to = Carbon::parse($data['to'] ?? now()->toDateString())->endOfDay();
+        return [$from, $to];
     }
 
     public function messages()

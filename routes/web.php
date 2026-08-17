@@ -28,6 +28,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/routing', [AdminController::class, 'storeRouting'])->name('routing.store');
     Route::get('/messages', [AdminController::class, 'messages'])->name('messages');
     Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
+    Route::get('/reports/export', [AdminController::class, 'exportReports'])->name('reports.export');
     Route::get('/monitoring', [MonitoringController::class, 'index'])->name('monitoring');
     Route::get('/currencies', [CurrencyController::class, 'index'])->name('currencies');
     Route::post('/currencies', [CurrencyController::class, 'storeCurrency'])->name('currencies.store');
