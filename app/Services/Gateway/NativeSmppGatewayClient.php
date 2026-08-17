@@ -11,6 +11,7 @@ class NativeSmppGatewayClient
     protected function http(): PendingRequest
     {
         return Http::baseUrl(config('smpp.gateway.url'))
+            ->withToken((string) config('smpp.gateway.token'))
             ->acceptJson()
             ->asJson()
             ->connectTimeout((int) config('smpp.gateway.connect_timeout', 5))

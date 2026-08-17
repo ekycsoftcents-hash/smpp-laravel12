@@ -4,13 +4,13 @@ The billing engine supports independent modes for the customer side and provider
 
 | Side | Mode | Charge/cost event | Failed/expired behavior |
 |---|---|---|---|
-| Customer | SUBMISSION | Debit customer at successful Jasmin submission | Credit a full refund on FAILED, REJECTED or EXPIRED DLR |
-| Customer | DLR | Debit customer only when DLR is DELIVERED | No debit for failed/expired/unknown |
-| Provider | SUBMISSION | Post provider cost at successful Jasmin submission | Post provider refund on FAILED, REJECTED or EXPIRED DLR |
-| Provider | DLR | Post provider cost only when DLR is DELIVERED | No cost for failed/expired/unknown |
+| Customer | SUBMISSION | Debit customer after the native gateway accepts a provider submission | Credit a full refund on FAILED, REJECTED, or EXPIRED DLR |
+| Customer | DLR | Debit customer only when DLR is DELIVERED | No debit for failed, expired, or unknown |
+| Provider | SUBMISSION | Post provider cost after successful native gateway submission | Post provider refund on FAILED, REJECTED, or EXPIRED DLR |
+| Provider | DLR | Post provider cost only when DLR is DELIVERED | No cost for failed, expired, or unknown |
 
-Each posting is protected by a unique billing event key, so a retried queue job or duplicate DLR callback cannot double-charge the same message. `customer_charge`, `provider_cost`, and `profit` are recalculated from posted billing events on every billing transition.
+Each posting is protected by a unique billing event key, so a retried queue job or duplicate provider DLR cannot double-charge the same message. `customer_charge`, `provider_cost`, and `profit` are recalculated from posted billing events on every billing transition.
 
-The implementation lives in `app/Services/Billing/BillingService.php`. The submission queue job invokes `onSubmission()` after Jasmin returns a provider message ID. The Jasmin callback invokes `onDlr()` after mapping the receipt status. Rates are snapshotted on `sms_messages` through `sell_rate`, `buy_rate`, and `segments`.
+The implementation lives in `app/Services/Billing/BillingService.php`. The `SendSmsToGateway` queue job invokes `onSubmission()` after the Node.js gateway returns a provider message ID. The Node.js provider manager updates the shared `sms_messages` row when it receives `deliver_sm`, and the reconciliation flow invokes `onDlr()` after mapping the receipt status. Rates are snapshotted on `sms_messages` through `sell_rate`, `buy_rate`, and `segments`.
 
-For production use, protect rate and account selection behind authenticated API credentials and perform provider routing before dispatching the job; the current API accepts optional `customer_id`, `provider_id`, `sell_rate`, and `buy_rate` values to make the integration path testable locally.
+For production use, protect rate and account selection behind authenticated API credentials, perform provider routing before dispatching the job, and keep invoice payments separate from SMS traffic ledger entries. The native gateway internal API is protected with `SMPP_GATEWAY_TOKEN`.

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('content')
-<div class="top"><div><div class="eyebrow">Operations / Identity</div><div class="h1">Customers & Resellers</div><div class="sub">Create, edit and manage Laravel accounts and their Jasmin SMPP access.</div></div><a class="button" href="{{ route('dashboard') }}">← Dashboard</a></div>
+<div class="top"><div><div class="eyebrow">Operations / Identity</div><div class="h1">Customers & Resellers</div><div class="sub">Create, edit and manage Laravel accounts and their native SMPP gateway access.</div></div><a class="button" href="{{ route('dashboard') }}">← Dashboard</a></div>
 @if(session('success'))<div class="notice">{{ session('success') }}</div>@endif
 @if($errors->any())<div class="error">{{ $errors->first() }}</div>@endif
 <div class="split"><section class="card"><h2>Create user</h2><form method="POST" action="{{ route('admin.users.store') }}">@csrf<div class="formgrid"><label>Name<input name="name" required></label><label>Email<input type="email" name="email" required></label><label>Password<input type="password" name="password" required minlength="8"></label><label>Account type<select name="account_type"><option>customer</option><option>reseller</option><option>operator</option><option>admin</option></select></label><label>Role<input name="role" value="customer" required></label><label>Customer billing<select name="customer_billing_mode"><option>SUBMISSION</option><option>DLR</option></select></label><label>Provider billing<select name="provider_billing_mode"><option>SUBMISSION</option><option>DLR</option></select></label><label>Customer policy<select name="billing_policy"><option>PREPAID</option><option>DUE</option></select></label><label>Credit limit<input type="number" step="0.000001" name="credit_limit" value="0"></label><label>SMPP system ID<input name="system_id" placeholder="client_001" required></label><label>SMPP password<input type="password" name="smpp_password" minlength="8" required></label><label>Max SMPP binds<input type="number" name="max_bind" value="1" min="1" max="20" required></label><label>SMPP TPS limit<input type="number" step="0.001" name="tps" value="1" min="0.001" max="1000" required></label></div><button class="button" type="submit">Create user</button></form></section><section class="card"><h2>Account totals</h2><div class="value good">{{ $users->total() }}</div><div class="sub">accounts in the platform</div></section></div>
@@ -19,7 +19,7 @@
                 if (count) count.innerHTML = `<strong>${Number(account.current_binds || 0)} / ${Number(account.max_bind || 0)}</strong>`;
             });
         } catch (error) {
-            // Keep the last known values visible when Jasmin is temporarily unavailable.
+            // Keep the last known values visible when the native gateway is temporarily unavailable.
         }
     };
     refreshBindStatus();

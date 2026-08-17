@@ -1,6 +1,6 @@
 # REVE Native SMPP Platform Deployment
 
-This guide deploys the Laravel 12 admin panel, native Node.js SMPP gateway, PostgreSQL, Redis, and RabbitMQ with Docker Compose. Jasmin is not used.
+This guide deploys the Laravel 12 admin panel, native Node.js SMPP gateway, PostgreSQL, Redis, and RabbitMQ with Docker Compose. The legacy gateway is not part of this stack.
 
 ## 1. Prepare the server
 

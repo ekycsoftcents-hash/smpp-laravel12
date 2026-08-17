@@ -11,5 +11,3 @@ Route::prefix('v1')->group(function () {
     Route::get('/rates', fn () => response()->json(['data' => []]));
     Route::get('/dlr', fn () => response()->json(['data' => []]));
 });
-
-Route::post('/webhooks/jasmin/dlr', [SmsController::class, 'jasminDlr']);

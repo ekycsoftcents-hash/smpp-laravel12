@@ -4,19 +4,21 @@
 
 | Area | Status | Included |
 |---|---|---|
-| Laravel 12 foundation | Ready | Fresh Laravel 12 scaffold with PHP 8.2+ dependency target |
-| Jasmin adapter | Implemented | Form-encoded `/send` client with credentials, DLR request parameters, timeout and error mapping |
-| Queue consumer | Implemented | `SendSmsToJasmin` Redis queue job with `sms-submit` queue, retries, backoff, timeout and final failure handling |
-| SMS API | Implemented foundation | Submission endpoint creates an idempotent CDR row and dispatches the job; status endpoint reads the persisted state |
-| DLR callback | Implemented foundation | Jasmin callback endpoint maps common receipt statuses and updates provider/customer status fields |
-| Database | Ready | Users/resellers, providers, routing rules, rates, SMS/CDR, ledger, API credentials, customer SMPP accounts, refunds, alerts, metrics, webhooks and audit logs |
-| Docker Compose | Ready for local setup | Laravel app, dedicated queue worker, PostgreSQL 16, Redis 7, RabbitMQ 3 management and Jasmin 0.11 services |
-| Validation | Passed | PHP syntax validation completed successfully for all application, route, config and migration files |
+| Laravel 12 foundation | Ready | Admin, API, billing, invoices, rates, routing, monitoring, and security foundation |
+| Native Node.js SMPP gateway | Ready foundation | Customer-side binds, provider-side binds, submit_sm, deliver_sm, reconnect, routing, and failover |
+| Queue consumer | Ready | `SendSmsToGateway` Redis queue job with retries, backoff, timeout, balance checks, and failure handling |
+| SMS API | Ready foundation | Idempotent submission row, authenticated Laravel-to-gateway API call, provider correlation, and status endpoint |
+| DLR processing | Ready foundation | Provider receipts map to delivered, failed, and expired states and update the shared PostgreSQL row |
+| Live events | Ready | Redis Pub/Sub and independent SSE subscribers for browser monitoring |
+| React live monitor | Ready | Vite-powered React component with reconnect, counters, and recent event table |
+| Database | Ready | Users, providers, routing rules, rates, SMS/CDR, ledger, billing events, invoices, payments, alerts, metrics, webhooks, and audit logs |
+| Docker Compose | Ready for local setup | Laravel app, queue worker, PostgreSQL 16, Redis 7, RabbitMQ 3 management, and native Node.js gateway |
+| Validation | Passed | PHP and Node syntax checks plus Vite production build completed |
 
 ## Local environment notes
 
-Copy `.env.example` to `.env`, set `JASMIN_USERNAME` and `JASMIN_PASSWORD`, run `composer install`, then run `docker compose up -d --build` and `docker compose exec app php artisan migrate --force`. The queue consumer is the `queue-worker` service and uses Redis. RabbitMQ is included as the broker service used by the Jasmin environment and is exposed for local inspection through port 15672.
+Copy `.env.example` to `.env`, set `APP_KEY`, `SMPP_GATEWAY_TOKEN`, provider credentials, mail, and Telegram settings, then run `docker compose up -d --build` and `docker compose exec app php artisan migrate --force`. The `gateway` service exposes customer SMPP on port `2775`, authenticated internal HTTP API on port `3001`, and live events at `/live/events`.
 
 ## Required production hardening
 
-Before live traffic, add API-key authentication and rate limiting, encrypt provider credentials, sign and verify callbacks, validate a shared DLR secret, implement transactional customer/provider ledger posting, add dead-letter monitoring, and configure a durable external PostgreSQL/Redis/RabbitMQ deployment. Provider SMPP connector credentials and Jasmin route configuration remain deployment-specific.
+Before live international traffic, add a reverse proxy with TLS, API rate limiting, IP allowlists for the internal gateway API, provider credential rotation, structured log shipping, dead-letter monitoring, external PostgreSQL/Redis backups, and load tests with real provider test accounts. Keep `APP_KEY`, `SMPP_GATEWAY_TOKEN`, database passwords, and provider passwords outside the browser and source control.

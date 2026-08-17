@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\SendSmsToJasmin;
-use App\Services\Billing\BillingService;
+use App\Jobs\SendSmsToGateway;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -57,7 +56,7 @@ class SmsController extends Controller
             'updated_at' => now(),
         ]);
 
-        SendSmsToJasmin::dispatch($smsId);
+        SendSmsToGateway::dispatch($smsId);
         return response()->json(['message_id' => $messageId, 'status' => 'QUEUED'], 202);
     }
 
@@ -107,34 +106,4 @@ class SmsController extends Controller
         return response()->json(['message_id' => $message->message_id, 'status' => $message->final_status, 'provider_status' => $message->provider_status]);
     }
 
-    public function jasminDlr(Request $request, BillingService $billing)
-    {
-        $id = $request->input('id') ?: $request->input('message_id');
-        $status = strtoupper((string) ($request->input('message_status') ?: $request->input('status')));
-        $mapped = match (true) {
-            in_array($status, ['DELIVRD', 'DELIVERED'], true) => 'DELIVERED',
-            in_array($status, ['UNDELIV', 'FAILED', 'REJECTD', 'REJECTED'], true) => 'FAILED',
-            in_array($status, ['EXPIRED', 'EXPIRD'], true) => 'EXPIRED',
-            default => 'UNKNOWN',
-        };
-
-        if ($id) {
-            $message = DB::table('sms_messages')->whereJsonContains('metadata->jasmin_message_id', $id)->first();
-            if (!$message) {
-                $message = DB::table('sms_messages')->where('message_id', $id)->first();
-            }
-            if ($message) {
-                DB::table('sms_messages')->where('id', $message->id)->update([
-                    'final_status' => $mapped,
-                    'provider_status' => $status ?: 'UNKNOWN',
-                    'customer_status' => $mapped,
-                    'dlr_at' => now(),
-                    'updated_at' => now(),
-                ]);
-                $billing->onDlr((int) $message->id, $mapped);
-            }
-        }
-
-        return response()->json(['accepted' => true, 'status' => $mapped]);
-    }
 }

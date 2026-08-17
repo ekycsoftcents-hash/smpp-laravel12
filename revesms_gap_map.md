@@ -13,7 +13,7 @@ The current Laravel panel has working views and routes for:
 | Routing | Routing rules CRUD |
 | Messages | SMS/CDR listing |
 | Reports | Date, currency, client/provider filters, P&L, provider performance, CSV exports |
-| Monitoring | Jasmin status, live traffic, provider health, bind metrics |
+| Monitoring | Native gateway status, live traffic, provider health, bind metrics |
 | Currencies | Currency and exchange-rate CRUD |
 | Billing | Submission/DLR, prepaid/due, ledger and reconciliation foundations |
 

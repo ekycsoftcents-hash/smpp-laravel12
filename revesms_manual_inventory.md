@@ -27,7 +27,7 @@ The manual is an **Admin User Guide** for REVE SMS and presents a broad back-off
 
 1. The current panel already covers parts of **clients, providers, rates, routing, finance, reports, monitoring, currencies, and users**, but the REVE SMS workflow is broader and more menu-driven.
 2. The redesign should likely introduce a **left-side grouped navigation** instead of only simple page cards.
-3. The current SMPP/Jasmin platform should be mapped to REVE concepts as follows:
+3. The current native SMPP gateway platform should be mapped to REVE concepts as follows:
    - SMS Client / SMPP Profile / HTTP Profile → customer, SMPP account, API access
    - SMS Rate Plan / Country → tariff management, prefix/country tables
    - SMS Route / Translation → routing rules and transformations

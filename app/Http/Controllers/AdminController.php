@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use App\Services\Jasmin\JasminSmppProvisioningService;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
@@ -17,7 +16,7 @@ class AdminController extends Controller
         return view('admin.users', compact('users'));
     }
 
-    public function storeUser(Request $request, JasminSmppProvisioningService $jasmin)
+    public function storeUser(Request $request)
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
@@ -38,18 +37,17 @@ class AdminController extends Controller
         $smppPassword = $data['smpp_password'];
         $systemId = $data['system_id']; $maxBind = (int) $data['max_bind']; $tps = (float) $data['tps'];
         unset($data['smpp_password'], $data['system_id'], $data['max_bind'], $data['tps']);
-        $userId = DB::transaction(function () use ($data, $plainPassword, $smppPassword, $systemId, $maxBind, $tps, $jasmin) {
+        $userId = DB::transaction(function () use ($data, $plainPassword, $smppPassword, $systemId, $maxBind, $tps) {
             $data['password'] = Hash::make($plainPassword);
             $data['email_verified_at'] = now();
             $userId = DB::table('users')->insertGetId(array_merge($data, ['balance' => 1.000000, 'created_at' => now(), 'updated_at' => now()]));
-            $jasmin->provision('u' . $userId, $systemId, $smppPassword, $maxBind, $tps);
             DB::table('customer_smpp_accounts')->insert([
                 'user_id' => $userId, 'system_id' => $systemId, 'password' => encrypt($smppPassword),
                 'max_bind' => $maxBind, 'tps' => $tps, 'enabled' => true, 'created_at' => now(), 'updated_at' => now(),
             ]);
             return $userId;
         });
-        return back()->with('success', "User created and Jasmin SMPP account provisioned: {$systemId}");
+        return back()->with('success', "User created and native SMPP account saved: {$systemId}");
     }
 
     public function providers()
@@ -221,7 +219,7 @@ class AdminController extends Controller
         return back()->with('success', 'Routing rule created successfully.');
     }
 
-    public function updateUser(Request $request, int $userId, JasminSmppProvisioningService $jasmin)
+    public function updateUser(Request $request, int $userId)
     {
         $account = DB::table('customer_smpp_accounts')->where('user_id', $userId)->first();
         $data = $request->validate([
@@ -253,28 +251,25 @@ class AdminController extends Controller
         $balance = $data['balance'];
         unset($data['balance']);
 
-        DB::transaction(function () use ($data, $balance, $userId, $account, $jasmin, $systemId, $plainSmppPassword, $maxBind, $tps, $smppEnabled): void {
+        DB::transaction(function () use ($data, $balance, $userId, $account, $systemId, $plainSmppPassword, $maxBind, $tps, $smppEnabled): void {
             DB::table('users')->where('id', $userId)->update(array_merge($data, ['balance' => $balance, 'updated_at' => now()]));
             if ($account) {
-                $jasmin->update('u' . $userId, $systemId, $plainSmppPassword, $maxBind, $tps);
-                if ($smppEnabled) $jasmin->enable('u' . $userId); else $jasmin->disable('u' . $userId);
                 $local = ['system_id' => $systemId, 'max_bind' => $maxBind, 'tps' => $tps, 'enabled' => $smppEnabled, 'updated_at' => now()];
                 if ($plainSmppPassword !== null && $plainSmppPassword !== '') $local['password'] = encrypt($plainSmppPassword);
                 DB::table('customer_smpp_accounts')->where('user_id', $userId)->update($local);
             }
         });
-        return back()->with('success', 'User and Jasmin SMPP account updated successfully.');
+        return back()->with('success', 'User and native SMPP account updated successfully.');
     }
 
-    public function destroyUser(int $userId, JasminSmppProvisioningService $jasmin)
+    public function destroyUser(int $userId)
     {
         $account = DB::table('customer_smpp_accounts')->where('user_id', $userId)->first();
         if ($account) {
-            $jasmin->delete('u' . $userId);
             DB::table('customer_smpp_accounts')->where('user_id', $userId)->delete();
         }
         DB::table('users')->where('id', $userId)->delete();
-        return back()->with('success', 'User and Jasmin SMPP account deleted successfully.');
+        return back()->with('success', 'User and native SMPP account deleted successfully.');
     }
 
     public function updateProvider(Request $request, int $providerId)

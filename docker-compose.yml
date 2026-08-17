@@ -59,8 +59,8 @@ services:
   rabbit-mq:
     image: rabbitmq:3.13-management-alpine
     environment:
-      RABBITMQ_DEFAULT_USER: jasmin
-      RABBITMQ_DEFAULT_PASS: jasmin_secret
+      RABBITMQ_DEFAULT_USER: smpp
+      RABBITMQ_DEFAULT_PASS: smpp_secret
     volumes:
       - smpp_rabbitmq:/var/lib/rabbitmq
     ports:

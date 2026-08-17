@@ -1,34 +1,37 @@
-# SMPP Control Plane — Laravel 12 + Jasmin 0.11
+# SMPP Control Plane — Laravel 12 + Native Node.js Gateway
 
-This project separates SMS transport from business logic: **Jasmin 0.11** sends SMS through SMPP connectors, while **Laravel 12** owns API validation, queue dispatch, routing/billing persistence, DLR state updates and audit data. PostgreSQL stores the records, Redis is the Laravel queue backend, and RabbitMQ is included for Jasmin's broker-oriented gateway environment.
+This project separates business operations from SMPP transport. **Laravel 12** owns users, client SMPP accounts, rates, routing rules, billing, invoices, reports, and permanent PostgreSQL records. **Native Node.js** owns customer/provider SMPP binds, submit_sm, deliver_sm, provider selection, retry, failover, and live events. Redis provides queue and Pub/Sub transport, while RabbitMQ remains available for auxiliary platform integrations.
 
 ## Local startup
 
-Copy the environment template and set the Jasmin account credentials:
-
 ```bash
 cp .env.example .env
-# set JASMIN_USERNAME and JASMIN_PASSWORD
+# Set APP_KEY, SMPP_GATEWAY_TOKEN, provider credentials, mail and alert settings
 composer install
+npm install
 php artisan key:generate
 docker compose up -d --build
 docker compose exec app php artisan migrate --force
 ```
 
-The dashboard is available at `http://localhost:8080`. RabbitMQ management is available at `http://localhost:15672` using the credentials in `.env`. The queue consumer runs as a separate `queue-worker` service and consumes the `sms-submit` queue.
+The dashboard is available at `http://localhost:8080`. Native gateway health is available at `http://localhost:3001/health`, customer SMPP binds listen on `localhost:2775`, and RabbitMQ management is available at `http://localhost:15672`. The queue consumer runs as a separate `queue-worker` service and consumes the `sms-submit` queue.
 
 ## SMS submission flow
 
-`POST /api/v1/sms/send` validates `from`, `to`, `content`, and an optional `idempotency_key`. It creates the `sms_messages` row and dispatches `App\\Jobs\\SendSmsToJasmin` to Redis. The worker calls `App\\Services\\Jasmin\\JasminHttpAdapter`, which sends a form-encoded request to Jasmin `/send` with `username`, `password`, `to`, `from`, `content`, `coding`, `dlr=yes`, `dlr-url`, `dlr-level=2`, and `dlr-method=POST`. Jasmin returns a queued provider message ID; the job stores it in message metadata and marks the message `SUBMITTED`.
+`POST /api/v1/sms/send` validates `from`, `to`, `content`, and an optional `idempotency_key`. It creates the `sms_messages` row and dispatches `App\\Jobs\\SendSmsToGateway` to Redis. The job calls `App\\Services\\Gateway\\NativeSmppGatewayClient`, which sends an authenticated request to the Node.js gateway at `/api/v1/messages`. Node.js selects a provider using country, prefix, sender, priority, and health rules, sends `submit_sm`, and returns the provider message ID. The job records the provider correlation and posts submission billing.
 
-Jasmin posts delivery receipts to `POST /api/webhooks/jasmin/dlr`. `SmsController::jasminDlr` maps common Jasmin statuses such as `DELIVRD`, `UNDELIV`, `REJECTD`, and `EXPIRED` into the platform statuses and updates the CDR row. The callback URL must be reachable from the Jasmin container; for local Compose, `http://app/api/webhooks/jasmin/dlr` is the internal service URL.
+The provider sends delivery receipts through `deliver_sm` to Node.js. The gateway maps `DELIVRD`, `UNDELIV`, `REJECTD`, and `EXPIRED` to platform statuses, updates the shared PostgreSQL `sms_messages` row, publishes a Redis event, and leaves Laravel's billing ledger to apply its duplicate-safe DLR transition.
 
 ## Queue behavior
 
-The worker uses Redis with `php artisan queue:work redis --queue=sms-submit,default --sleep=3 --tries=5 --timeout=45 --backoff=5`. The job has backoff values of 5, 15, 45, and 120 seconds. On final failure it marks the SMS `FAILED` and stores the exception in metadata. Existing terminal statuses are ignored, which provides a basic idempotency guard.
+The worker uses Redis with `php artisan queue:work redis --queue=sms-submit,default --sleep=1 --tries=8 --timeout=90`. The job uses exponential-style backoff values of 5, 15, 45, 120, 300, 600, and 900 seconds. A final failure marks the SMS `FAILED` and stores the exception in metadata. Existing terminal statuses and repeated idempotency keys are ignored.
+
+## Live traffic
+
+The Node.js gateway publishes events such as `client.bind`, `provider.bind`, `provider.down`, `message.submitted`, `message.dlr`, and `message.failed` to `/live/events` as Server-Sent Events. The Laravel Blade monitoring page includes an Alpine component and a Vite-powered React component at `resources/js/components/LiveTrafficMonitor.jsx`.
 
 ## Production hardening
 
-Before live traffic, replace the placeholder Jasmin account with a real Jasmin user and route, add API-key authentication and rate limiting, encrypt provider credentials, sign and verify callbacks, validate a shared DLR secret, implement transactional customer/provider ledger posting, add dead-letter monitoring, and configure a durable external PostgreSQL/Redis/RabbitMQ deployment. The included `jookies/jasmin:0.11` container is a local integration target; provider SMPP connector credentials and routes are intentionally deployment-specific.
+Use TLS behind a reverse proxy, keep `SMPP_GATEWAY_TOKEN` and `APP_KEY` secret, apply IP allowlists and rate limits to the gateway API, encrypt provider credentials, back up PostgreSQL and Redis, ship structured logs, and load-test against provider test accounts before enabling international traffic.
 
-References: [Jasmin HTTP API](https://docs.jasminsms.com/en/latest/apis/http/index.html), [Laravel Queues](https://laravel.com/docs/12.x/queues).
+See `docs/laravel-node-sync.md` for the database/API contract and `docs/native-gateway-deployment.md` for Docker deployment and recovery.

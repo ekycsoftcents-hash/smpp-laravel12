@@ -21,6 +21,5 @@ run_app() {
 {
   echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] recovery window: $FROM -> $TO"
   run_app billing:reconcile --from="$FROM" --to="$TO" --limit=2000 --commit
-  run_app jasmin:dlr-sync --from="$FROM" --to="$TO" --limit=2000 --commit
   echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] recovery completed"
 } >> "$LOG_DIR/recovery-jobs.log" 2>&1
