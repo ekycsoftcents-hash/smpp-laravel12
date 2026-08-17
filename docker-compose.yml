@@ -6,6 +6,7 @@ services:
     env_file: .env
     volumes:
       - ./.env:/var/www/html/.env
+      - jasmin_logs:/var/log/jasmin:ro
     ports:
       - "8080:80"
     depends_on:
@@ -22,6 +23,7 @@ services:
     env_file: .env
     volumes:
       - ./.env:/var/www/html/.env
+      - jasmin_logs:/var/log/jasmin:ro
     command: php artisan queue:work redis --queue=sms-submit,default --sleep=3 --tries=5 --timeout=45 --backoff=5
     depends_on:
       postgres: {condition: service_healthy}
