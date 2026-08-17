@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\Jasmin\JasminSmppProvisioningService;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class AdminController extends Controller
 {
@@ -14,7 +14,7 @@ class AdminController extends Controller
         return view('admin.users', ['users' => DB::table('users')->latest()->paginate(25)]);
     }
 
-    public function storeUser(Request $request)
+    public function storeUser(Request $request, JasminSmppProvisioningService $jasmin)
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
@@ -26,11 +26,26 @@ class AdminController extends Controller
             'provider_billing_mode' => ['required', 'in:SUBMISSION,DLR'],
             'billing_policy' => ['required', 'in:DUE,PREPAID'],
             'credit_limit' => ['required', 'numeric', 'min:0'],
+            'system_id' => ['required', 'alpha_dash', 'min:3', 'max:16', 'unique:customer_smpp_accounts,system_id'],
+            'smpp_password' => ['required', 'string', 'min:8', 'max:64'],
+            'max_bind' => ['required', 'integer', 'between:1,20'],
         ]);
-        $data['password'] = Hash::make($data['password']);
-        $data['email_verified_at'] = now();
-        DB::table('users')->insert(array_merge($data, ['created_at' => now(), 'updated_at' => now()]));
-        return back()->with('success', 'User created successfully.');
+        $plainPassword = $data['password'];
+        $smppPassword = $data['smpp_password'];
+        $systemId = $data['system_id']; $maxBind = (int) $data['max_bind'];
+        unset($data['smpp_password'], $data['system_id'], $data['max_bind']);
+        $userId = DB::transaction(function () use ($data, $plainPassword, $smppPassword, $systemId, $maxBind, $jasmin) {
+            $data['password'] = Hash::make($plainPassword);
+            $data['email_verified_at'] = now();
+            $userId = DB::table('users')->insertGetId(array_merge($data, ['created_at' => now(), 'updated_at' => now()]));
+            $jasmin->provision('u' . $userId, $systemId, $smppPassword, $maxBind);
+            DB::table('customer_smpp_accounts')->insert([
+                'user_id' => $userId, 'system_id' => $systemId, 'password' => encrypt($smppPassword),
+                'max_bind' => $maxBind, 'tps' => 1, 'enabled' => true, 'created_at' => now(), 'updated_at' => now(),
+            ]);
+            return $userId;
+        });
+        return back()->with('success', "User created and Jasmin SMPP account provisioned: {$systemId}");
     }
 
     public function providers()
