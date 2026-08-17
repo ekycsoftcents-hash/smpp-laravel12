@@ -24,6 +24,8 @@ class AdminController extends Controller
             'role' => ['required', 'string', 'max:80'],
             'customer_billing_mode' => ['required', 'in:SUBMISSION,DLR'],
             'provider_billing_mode' => ['required', 'in:SUBMISSION,DLR'],
+            'billing_policy' => ['required', 'in:DUE,PREPAID'],
+            'credit_limit' => ['required', 'numeric', 'min:0'],
         ]);
         $data['password'] = Hash::make($data['password']);
         $data['email_verified_at'] = now();
@@ -44,6 +46,9 @@ class AdminController extends Controller
             'password' => ['required', 'string', 'max:255'], 'buy_rate' => ['required', 'numeric', 'min:0'],
             'country' => ['nullable', 'string', 'max:80'], 'priority' => ['required', 'integer', 'min:1'],
             'billing_mode' => ['required', 'in:SUBMISSION,DLR'],
+            'settlement_policy' => ['required', 'in:DUE,PREPAID'],
+            'credit_limit' => ['required', 'numeric', 'min:0'],
+            'payment_terms_days' => ['required', 'integer', 'min:0'],
         ]);
         $data['password'] = encrypt($data['password']);
         $data['created_at'] = now(); $data['updated_at'] = now();
@@ -64,6 +69,8 @@ class AdminController extends Controller
             'type' => ['required', 'string', 'max:50'], 'country' => ['nullable', 'string', 'max:80'],
             'prefix' => ['nullable', 'string', 'max:40'], 'buy_rate' => ['required', 'numeric', 'min:0'],
             'sell_rate' => ['required', 'numeric', 'min:0'], 'currency' => ['required', 'string', 'size:3'],
+            'buy_currency' => ['required', 'string', 'size:3'],
+            'sell_currency' => ['required', 'string', 'size:3'],
         ]);
         DB::table('rates')->insert(array_merge($data, ['effective_from' => now(), 'created_at' => now(), 'updated_at' => now()]));
         return back()->with('success', 'Rate created successfully.');
