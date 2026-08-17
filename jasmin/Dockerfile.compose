@@ -24,9 +24,10 @@ COPY docker/docker-entrypoint.sh /jasmin-upstream-entrypoint.sh
 COPY docker/compose-entrypoint.sh /compose-entrypoint.sh
 COPY docker/provision-default.py /provision-default.py
 RUN chmod +x /jasmin-upstream-entrypoint.sh /compose-entrypoint.sh \
+    && sed -i 's#interceptord.py#/usr/local/bin/interceptord.py#g' /jasmin-upstream-entrypoint.sh \
     && sed -i '/\[jcli\]/a bind=0.0.0.0' ${CONFIG_PATH}/jasmin.cfg \
     && sed -i '/\[http-api\]/a bind=0.0.0.0' ${CONFIG_PATH}/jasmin.cfg \
     && sed -i '/\[smpp-server\]/a bind=0.0.0.0' ${CONFIG_PATH}/jasmin.cfg
 
 ENTRYPOINT ["/compose-entrypoint.sh"]
-CMD ["jasmind.py", "--enable-interceptor-client", "--enable-dlr-thrower", "--enable-dlr-lookup", "-u", "jcliadmin", "-p", "jclipwd"]
+CMD ["/usr/local/bin/jasmind.py", "--enable-interceptor-client", "--enable-dlr-thrower", "--enable-dlr-lookup", "-u", "jcliadmin", "-p", "jclipwd"]
